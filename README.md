@@ -6,26 +6,57 @@ this program is a discord bot that goes through a ton of things i wanted to solv
 
 General topics and problems solved
 
-anime & manga
-server admin
-timing study sessions
-todos
-message management
-music
-video
-osu
-league of legends
-valorant
-overwatch
-tcg
-nintendo updates
-artists song releases
-release radar update
-discover weekly update
-polls
-crypto and currency conversions
-reddit search
-software engineering work and internships
-guitar
+Anime:
+- keeps track of the top 10 trending anime of the season,
+- and manga
 
-adding projects used
+server admin
+- sorting messages
+- deleting messages
+- seeing who deleted messages
+- Bans 
+
+
+timing study sessions
+-setting timers for study sessions with max session times to avoid burnout but give the option to extend
+
+todos
+- reminders for todos
+
+music
+- music player
+- spotify stats(top artist, song, genre)
+- release radar update
+- discover weekly update
+- spotify,youtube,soundcloud compatibility
+- artists song releases
+
+
+osu
+- check user stats
+- recent plays
+- top plays
+- pp for map(with and without mods)
+
+
+league of legends
+- stat tracker
+- patch notes
+- youtube videos from official channel
+- pro league dates
+- champ builds,counters 
+
+
+valorant
+- stat tracker
+- patch notes
+- youtube videos from official channel
+- pro league dates
+
+date ideas or stuff to do
+college discounts
+birthday discounts
+common things needed for 
+school
+gym 
+scholarships
