@@ -53,10 +53,3 @@ valorant
 - youtube videos from official channel
 - pro league dates
 
-date ideas or stuff to do
-college discounts
-birthday discounts
-common things needed for 
-school
-gym 
-scholarships
