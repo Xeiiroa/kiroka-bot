@@ -12,6 +12,7 @@ bot = commands.Bot(command_prefix = '!',intents = discord.Intents.all())
 #bot ready message
 @bot.event
 async def on_ready():
+    await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="リグマ"))
     channel = bot.get_channel(CHANNEL_ID)
     await channel.send("Bot is ready")
  

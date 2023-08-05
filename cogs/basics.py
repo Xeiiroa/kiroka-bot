@@ -1,6 +1,12 @@
 import discord
 from discord.ext import commands
 from tokens import *
+from discord import Member
+from discord.ext.commands import has_permissions, MissingPermissions
+from discord.utils import get
+import requests
+import json
+import os
 
 #this class contains all basic default functions
 class Basics(commands.Cog):
