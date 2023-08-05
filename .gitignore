@@ -1,3 +1,5 @@
 
 *.txt
 tokens.py
+__pycache__/tokens.cpython-311.pyc
+__pycache__/random.cpython-311.pyc
