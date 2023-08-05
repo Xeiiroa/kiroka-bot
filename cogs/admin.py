@@ -43,7 +43,8 @@ class Admin(commands.Cog):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("No" + https://media.tenor.com/vUs9lHbfbWIAAAAC/ha-ha-simpsons.gif)
 
-            
+    @commands.commands
+    @has_permissions(kick_members=True)            
             
     
 def setup(bot):
