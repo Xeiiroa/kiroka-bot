@@ -28,7 +28,7 @@ class Admin(commands.Cog):
     @kick.error
     async def kick_error(ctx, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("Youre to low in the hierarchy to do that lol. step up" + https://wompampsupport.azureedge.net/fetchimage?siteId=7575&v=2&jpgQuality=100&width=700&url=https%3A%2F%2Fi.ytimg.com%2Fvi%2Fl3HMALfodb8%2Fhqdefault.jpg)
+            await ctx.send("Youre to low in the hierarchy to do that lol. step up" + "https://wompampsupport.azureedge.net/fetchimage?siteId=7575&v=2&jpgQuality=100&width=700&url=https%3A%2F%2Fi.ytimg.com%2Fvi%2Fl3HMALfodb8%2Fhqdefault.jpg")
             
 
     @commands.command
@@ -41,10 +41,8 @@ class Admin(commands.Cog):
     @kick.error
     async def ban_error(ctx, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("No" + https://media.tenor.com/vUs9lHbfbWIAAAAC/ha-ha-simpsons.gif)
-
-    @commands.commands
-    @has_permissions(kick_members=True)            
+            await ctx.send("No" + "https://media.tenor.com/vUs9lHbfbWIAAAAC/ha-ha-simpsons.gif")
+         
             
     
 def setup(bot):

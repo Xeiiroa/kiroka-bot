@@ -22,6 +22,7 @@ timing study sessions
 
 todos
 - reminders for todos
+-timer
 
 music
 - music player
