@@ -51,6 +51,7 @@ class Admin(commands.Cog):
     
     #unban command        
     @commands.command()
+    @commands.guild_only()
     @has_permissions(administrator=True)
     async def unban(self, ctx, member: discord.Member, *, reason=None):
         
