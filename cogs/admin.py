@@ -5,47 +5,51 @@ from discord import Member
 from discord.ext.commands import has_permissions, MissingPermissions
 from discord.utils import get
 
-#this class contains all basic default functions
+
+
 class Admin(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-     
-    """
-    Kick and ban commands
-
-    checks if the user sending the message has the ability to kick people
-
-    passes in the user thats being kicked
-
-    giving a reason as to why the user is being kicked
-
-    as well as error checking for if the user in question cant kick others
-    """
+    def __init__ (self, client):
+        self.client = client
+        
+    #Ready event    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print("Admin is ready.")
+        
+    #kick command
     @commands.command()
     @has_permissions(kick_members=True)
-    async def kick(ctx, member: discord.Member, *, reason = None):
+    async def kick(self, ctx, member: discord.Member, *, reason = None):
         await member.kick(reason=reason)
-        await ctx.send(f"User {member} has been kicked")
-        
-        
+        await ctx.send(f"user {member} has been kicked.")
+    
+    #kick error check    
     @kick.error
-    async def kick_error(ctx, error):
+    async def kick_error(self, ctx, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("Youre to low in the hierarchy to do that lol. step up" + "https://wompampsupport.azureedge.net/fetchimage?siteId=7575&v=2&jpgQuality=100&width=700&url=https%3A%2F%2Fi.ytimg.com%2Fvi%2Fl3HMALfodb8%2Fhqdefault.jpg")
+            await ctx.send("you're too low in the hierarchy to do that lol.")
             
-
-    @commands.command
+    
+    
+    
+    #ban command        
+    @commands.command()
     @has_permissions(ban_members=True)
-    async def ban(ctx, member: discord.Member, *, reason = None):
+    async def ban(self, ctx, member: discord.Member, *, reason = None):
         await member.ban(reason=reason)
-        await ctx.send(f"Damn, you really wont be missed {member}")
-        
-        
-    @kick.error
-    async def ban_error(ctx, error):
+        await ctx.send(f"user {member} has been banned.")
+    
+    #ban errorcheck    
+    @ban.error
+    async def ban_error(self, ctx, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("No" + "https://media.tenor.com/vUs9lHbfbWIAAAAC/ha-ha-simpsons.gif")
-         
+            await ctx.send("you're too low in the hierarchy to do that lol.")
+      
+      
+    
+    
+    
+    #unban command        
     @commands.command()
     @has_permissions(administrator=True)
     async def unban(self, ctx, member: discord.Member, *, reason=None):
@@ -66,17 +70,13 @@ class Admin(commands.Cog):
     @unban.error
     async def unban_error(self, ctx, error):    
         if isinstance(error,commands.MissingPermissions):
-            await ctx.send("You dont have permission to unban people")    
+            await ctx.send("You dont have permission to unban people")
+            
     
     
-    #didnt finish    
-    @commands.command()
-    @has_permissions(administrator=True)
-    async def banlist(self, ctx):
-        ...
     
     
-    #give user roles
+    #addrole command
     @commands.command(pass_context = True)
     @commands.has_permissions(manage_roles = True)   
     async def addrole(self, ctx, user: discord.Member, *, role: discord.Role):
@@ -86,11 +86,16 @@ class Admin(commands.Cog):
         else:
             await user.add_roles(role)
             await ctx.send(f"{user.mention} now has the role {role}")
-            
+    
+    #addrole errorcheck        
     @addrole.error
     async def role_error(self,ctx,error):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("you do not have permissions to assign that role.")        
+    
+    
+    
+    
         
     #remove roles from a user
     @commands.command(pass_context = True)
@@ -106,9 +111,12 @@ class Admin(commands.Cog):
     @removerole.error
     async def role_error(self,ctx,error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("you do not have permissions to assign that role.")
+            await ctx.send("you do not have permissions to assign that role.") 
         
-                
     
-def setup(bot):
-    bot.add_cog(Admin(bot))
+        
+
+
+async def setup(client):
+    await client.add_cog(Admin(client))
+    

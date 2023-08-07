@@ -8,48 +8,67 @@ import requests
 import json
 import os
 
-#this class contains all basic default functions
+
+
+
 class Basics(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, client):
+        self.client = client
      
-    #Hello command 
+    #Ready event    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print("Basics is ready.") 
+    
+    
+    #Hello command
     @commands.command()
     async def hello(self, ctx):
         await ctx.send("Hello kind stranger!")
         
-    #user join event
+    #join vc command    
+    @commands.command(pass_context = True)
+    async def join(self, ctx):
+        if (ctx.author.voice):
+            channel = ctx.message.author.voice.channel
+            await channel.connect
+            
+    #leave vc command
+    @commands.command(pass_context = True)
+    async def leave(self, ctx):
+        if (ctx.voice_client):
+            await ctx.guild.voice_client.disconnect()
+            await ctx.send("I'm out.")
+        else:
+            await ctx.send("I'm not in a voice channel.")
+            
+        
+        
+async def setup(client):
+    await client.add_cog(Basics(client))
+        
+    
+    
+    
+    
+    
+    
+"""
+
+bot had errors where client was unable to be read however they have little use to me so i may revisit them later maybe not
+        
+        #user join event
     @commands.Cog.listener()
     async def on_member_join(member):
-        channel = bot.get_channel(CHANNEL_ID)
+        channel = client.get_channel(CHANNEL_ID)
         await channel.send("Welcome to da server")
         
     #user leave event
     @commands.Cog.listener()
     async def on_member_remove(member):
-        channel = bot.get_channel(CHANNEL_ID)
+        channel = client.get_channel(CHANNEL_ID)
         await channel.send("Dont come back!")
         
-    #command for bot to join vcs
-    @commands.command(pass_context = True)
-    async def join(ctx):
-        if (ctx.author.voice):
-            channel = ctx.message.author.voice.channel
-            await channel.connect()
-        else:
-            await ctx.send("you arent in a voice channel for me to join")
-            
-    #command for bot to leave vcs       
-    @commands.command(pass_context = True)
-    async def leave(ctx):
-        if (ctx.voice_bot):
-            await ctx.guild.voice_bot.disconnect()
-            await ctx.send("I'm out")
-        else:
-            await ctx.send("i am not in a voice channel")
         
-            
-            
-    
-def setup(bot):
-    bot.add_cog(Basics(bot))
+        
+"""
