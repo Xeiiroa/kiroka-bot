@@ -22,8 +22,50 @@ class Lol(commands.Cog):
         player_level = player_info["summonerLevel"]
         summoneriD = player_info["id"]
         
-        #getting data for user rank
-        summonerrankinfo =
+        
+        #getting data for summoners ranked stats
+        ranked_solo = {}
+        ranked_flex = {}
+        ranked_flex_message = "unranked"
+        ranked_solo_message = "unranked"
+        summonerrankinfo = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
+        rank_info = summonerrankinfo.json()
+        for stats in summonerrankinfo.json():
+            if "RANKED_SOLO_5x5" in stats.values():
+                ranked_solo["ranknum"] = stats["rank"]
+                ranked_solo["division"] = stats["tier"]
+                ranked_solo["lp"] = stats["leaguePoints"]
+                ranked_solo["wins"] = stats["wins"]
+                ranked_solo["losses"] = stats["losses"]
+
+                games_ranked_solo = stats["wins"] + stats["losses"]
+                ranked_solo["winrate"] = games_ranked_solo / stats["wins"] * 100
+                
+                ranked_solo_message = f"{ranked_solo['division']} {ranked_solo['ranknum']} {ranked_solo['lp']} LP \n \
+                    {ranked_solo['wins']}W {ranked_solo['losses']}L {ranked_solo['winrate']} "
+                
+            if "RANKED_FLEX_SR" in stats.values():
+                ranked_flex["ranknum"] = stats["rank"]
+                ranked_flex["division"] = stats["tier"]
+                ranked_flex["lp"] = stats["leaguePoints"]
+                ranked_flex["wins"] = stats["wins"]
+                ranked_flex["losses"] = stats["losses"]
+
+                games_ranked_flex = stats["wins"] + stats["losses"]
+                ranked_solo["winrate"] = games_ranked_flex / stats["wins"] * 100
+                
+                ranked_flex_message = f"{ranked_flex['division']} {ranked_flex['ranknum']} {ranked_flex['lp']} LP \n \
+                    {ranked_flex['wins']}W {ranked_flex['losses']}L {ranked_flex['winrate']} "
+            
+            
+            
+        #getting champion mastery information
+        mastery = requests.get(f"")    
+            
+
+                
+            
+        
         
         
         
@@ -60,11 +102,11 @@ class Lol(commands.Cog):
         embed_message = discord.Embed(title=f"Profile for {summonername}")
         embed_message.set_thumbnail(url=f"http://ddragon.leagueoflegends.com/cdn/13.15.1/img/profileicon/{player_pfp}.png")
         embed_message.add_field(name="Summoner level" , value=player_level, inline= False)
-        embed_message.add_field(name="Ranked Solo/Duo", value=..., inline=...)
-        embed_message.add_field(name="Top champions", value=...,inline=...)
-        embed_message.add_field(name="Recent Games", value=...,inline=...)
-        embed_message.add_field(name="Ranked Flex", value=...,inline=...)
-        embed_message.add_field(name="Last Game", value=...,inline=...)
+        embed_message.add_field(name="Ranked Solo/Duo", value=ranked_solo_message, inline=False)
+        embed_message.add_field(name="Ranked Flex", value=ranked_flex_message,inline=False)
+        embed_message.add_field(name="Top champions", value=...,inline=False)
+        embed_message.add_field(name="Recent Games", value=...,inline=False)
+        embed_message.add_field(name="Last Game", value=...,inline=False)
         
         await ctx.send(embed = embed_message)
         
