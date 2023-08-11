@@ -1,3 +1,6 @@
+#test for mastery can transfer to mastery
+
+
 import requests
 import json
 from tokens import *
@@ -17,5 +20,6 @@ for i in response.json():
     if len(champ_stats["championids"]) == 3:
         break
     elif "championId" in i.keys():
-        champ_stats["championids"].extend(str(i["championId"]))
-        print(len)(champ_stats["championids"])
+        champ_stats["championids"].append(i["championId"])
+        champ_stats["masterylvl"].append(i["championLevel"])
+        champ_stats["masterypoints"].append(i["championPoints"])
