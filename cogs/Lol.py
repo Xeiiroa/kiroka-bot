@@ -60,30 +60,56 @@ class Lol(commands.Cog):
             
             
         #getting champion mastery information
-        mastery = requests.get(f"")    
-            
+        """
+        current idea process
+        
+        get the links from needed 
+        create a multiple value dict to hold each value
+        go over the first link and get the champ id number, masterylvl and points and append it to the dict
+        
+        iterate over champ info data link and check if the number matches the champion id
+        if it does append that name to the the value champname
+        
+        
+        
+        
+        """
 
+
+        mastery = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
+        """get back to this to allow the site to update at the date you choose"""
+        champ_info = requests.get("https://ddragon.leagueoflegends.com/cdn/13.15.1/data/en_US/champion.json")
+        champ_stats = {"champname":[], "championids":[], "masterylvl":[], "masterypoints":[]}
+        
+        for i in mastery.json():
+            if len(champ_stats["championids"]) == 3:
+                break
+    
+            elif "championId" in i.keys():
+                champ_stats["championids"].append(i["championId"])
+                champ_stats["masterylvl"].append(i["championLevel"])
+                champ_stats["masterypoints"].append(i["championPoints"])
+                #create a counter that only allows the loop to go 3 times
                 
+        
+        
+        for j in champ_stats["championids"]:
+            for k in champ_info:
+        #find champ number and take its name and replace said id with said name
+                if "key" in k.keys():
+                    if k["key"] == champ_stats["championids"][j]: 
+                        champ_stats["champname"].append(k["name"])
+                
+
+        masterystring = f"{champ_stats['champname'][0]} M{champ_stats['masterylvl'][0]} {champ_stats['masterypoints'][0]} \n\
+            {champ_stats['champname'][1]} M{champ_stats['masterylvl'][1]} {champ_stats['masterypoints'][1]} \n\
+                {champ_stats['champname'][2]} M{champ_stats['masterylvl'][2]} {champ_stats['masterypoints'][2]}"
+                
+                
+                
+        
             
-        
-        
-        
-        
-        
-        
-        
-        
-        mastery = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summoneriD}")
-        player_mastery = mastery.json()
-        champdict={"championid": [], "masterylevel": [], "masterypoints": [] }
-        for i in player_mastery(3):
-            if i == "championId":
-                champdict["championid"].extend([player_mastery["championId"]])
-            elif i == "championLevel":
-                champdict["masterylevel"].extend(player_mastery["championLevel"])
-            elif i == "championPoints":
-                champdict["masterypoints"].extend(player_mastery["championPoints"])
-            #create a counter that only allows the loop to go 3 times
+            
             
             
         
@@ -104,7 +130,7 @@ class Lol(commands.Cog):
         embed_message.add_field(name="Summoner level" , value=player_level, inline= False)
         embed_message.add_field(name="Ranked Solo/Duo", value=ranked_solo_message, inline=False)
         embed_message.add_field(name="Ranked Flex", value=ranked_flex_message,inline=False)
-        embed_message.add_field(name="Top champions", value=...,inline=False)
+        embed_message.add_field(name="Top champions", value=masterystring,inline=False)
         embed_message.add_field(name="Recent Games", value=...,inline=False)
         embed_message.add_field(name="Last Game", value=...,inline=False)
         

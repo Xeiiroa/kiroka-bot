@@ -26,27 +26,30 @@ champ_info = requests.get("https://ddragon.leagueoflegends.com/cdn/13.15.1/data/
 #append each of the stats unless the length of a key is 3 or the for loop ends
 #for champs in champion ids
     #go through the file and compare the keys to the champ name and swap it out
-champ_stats = [{"championids":[], "masterylvl":[], "masterypoints":[]}]
+champ_stats = {"championids":[], "masterylvl":[], "masterypoints":[]}
 finalchampholder = []
 
+#appending the mastery data from the given stats to my dictionary
 for i in response.json():
     if len(champ_stats["championids"]) == 3:
         break
     
-    if "championId" in i.keys():
-        champ_stats["championids"] += i["championId"]
-        champ_stats["masterylvl"] += i["championLevel"]
-        champ_stats["masterypoints"] += i["championPoints"]
+    elif "championId" in i.keys():
+        champ_stats["championids"].append(i["championId"])
+        champ_stats["masterylvl"].append(i["championLevel"])
+        champ_stats["masterypoints"].append(i["championPoints"])
         
-        
+"""fix"""        
 for j in champ_stats["championids"]:
     for k in champ_info:
         #find champ number and take its name and replace said id with said name
         if "key" in j.keys():
             # if key(champion id number = j(also champ id number))
-            if "key" == j:
+            if "key" == j: #could also be champstats["championids"][j]
                 #print(j (test))
-                print(j)
+                """find out where it would iterate to"""
+                champ_stats["championids"][?].replace(champ_stats["championids"][?], champ_info["name"])
+
     
                 """ what i actually want to do with it"""
                 #update champ_stats["championids"][j] for k["name"]  (k[name] is the champions name)

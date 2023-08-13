@@ -21,6 +21,7 @@ class Messages(commands.Cog):
         await ctx.channel.purge(limit=count)
         await ctx.send(f"{count} message(s) deleted")
         
-        
+    #add mock here
+    
 async def setup(client):
     await client.add_cog(Messages(client))

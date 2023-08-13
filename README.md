@@ -1,36 +1,55 @@
 # kiroka-bot
  Discord bot
 
+Oyasu. A  multipurpose discord bot gudied towards the interest of the aveage discord gamer with commands towards server modertation
+Twitch notifications, Anime and Manga updates and information, Productivity, Music, and game specific commands for League of Legends, Valorant, and Osu!.
+
+
+
+# Admin and Moderation
+    -Kick/Bans
+    -Role adding/Removal
+    -Message Moderation
+
+# Productivity
+    - Study sessions with controllable limits to avoid burnout
+    - Reminders
+    - Task lists
+
+# Anime & Manga
+    - Anime Summaries
+    - Release reminders
+    - Leaderboards of top shows in the current season
+
+# Game stats and more for Titles
+    - League of Legends
+    - Valorant
+    - Osu
+
+# Genearal engagement
+    - Twitch notifications
+    - Reddit searching
+    - Polls
+    - Giveaways
+    - various choice responces
+
+# Music
+    - compatibilty with Spotify and Soundcould for music playing
+    - personal stats for your top artists,songs, and genres
+    - Keeping track of the dates to discover new music and new releases
+
+
 
 this program is a discord bot that goes through a ton of things i wanted to solve or things that friends of mine had and i could give a solution to
 
 General topics and problems solved
 
-Anime:
-- keeps track of the top 10 trending anime of the season,
-- and manga
-
-server admin
-- sorting messages
-- deleting messages
-- seeing who deleted messages
-- Bans 
 
 
-timing study sessions
--setting timers for study sessions with max session times to avoid burnout but give the option to extend
 
-todos
-- reminders for todos
--timer
 
-music
-- music player
-- spotify stats(top artist, song, genre)
-- release radar update
-- discover weekly update
-- spotify,youtube,soundcloud compatibility
-- artists song releases
+
+
 
 
 osu
