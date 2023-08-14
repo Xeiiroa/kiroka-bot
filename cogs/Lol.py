@@ -143,6 +143,15 @@ class Lol(commands.Cog):
         ...
         
     
+    @commands.command()
+    async def patchnotes(self, ctx):
+        link = "https://na1.api.riotgames.com/lol/patches"
+        response = requests.get(link, params={'api_key': RIOT_KEY})
+        most_recent_patch = response.json()[0]
+        patchnotes = most_recent_patch["notes"]
+        
+        print(patchnotes)
+    
     
     @commands.command
     async def lolpatchnotes():
