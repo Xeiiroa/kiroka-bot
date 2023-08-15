@@ -17,6 +17,14 @@ class Admin(commands.Cog):
             if role.permissions.mute_members:
                 return True
         return False
+    
+    def has_deafen_permission(ctx):
+        member = ctx.author
+        for role in member.roles:
+            if role.permissions.deafen_members:
+                return True
+        return False
+
         
     #Ready event    
     @commands.Cog.listener()
@@ -158,8 +166,11 @@ class Admin(commands.Cog):
     @commands.check(has_mute_permission)
     async def mute(self, ctx, member: discord.Member):
         if member.voice:
-            await member.edit(mute=True)
-            await ctx.send(f"{member.mention} has been muted in voice")
+            if member.voice.mute:
+                await ctx.send("they're is already muted")
+            else:
+                await member.edit(mute=True)
+                await ctx.send(f"{member.mention} has been voice muted.")
         else:
             await ctx.send(f'{member.mention} is not in a voice channel.')
             
@@ -173,6 +184,29 @@ class Admin(commands.Cog):
             await ctx.send(f"{member.mention} has been unmuted.")
         else:
             await ctx.send(f"{member.mention} isnt muted")
+            
+    @commands.command()
+    @commands.check(has_deafen_permission)
+    async def deafen(self,ctx, member: discord.Member):
+        if member.voice:
+            if member.voice.deaf:
+                await ctx.send("Theyre already deafened")
+            else: 
+                await member.edit(deafen=True)
+                await ctx.send(f"{member.mention} has been deafened.")
+        else:
+            await ctx.send(f"{member.mention} is not in a voice channel")
+            
+    @commands.command()
+    @commands.check(has_deafen_permission)
+    async def undeafen(self, ctx, member: discord.Member):
+        if member.voice.deaf:
+            await member.edit(deafen=False)
+            await ctx.send(f"{member.mention} has been undeafened.") 
+        else:
+            await ctx.send(f"they arent deafened")   
+        
+            
                     
         
     
