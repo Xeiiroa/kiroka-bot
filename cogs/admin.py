@@ -11,6 +11,13 @@ class Admin(commands.Cog):
     def __init__ (self, client):
         self.client = client
         
+    def has_mute_permission(ctx):
+        member = ctx.author
+        for role in member.roles:
+            if role.permissions.mute_members:
+                return True
+        return False
+        
     #Ready event    
     @commands.Cog.listener()
     async def on_ready(self):
@@ -117,6 +124,7 @@ class Admin(commands.Cog):
     #text mute command  
     #the jist of the command is you make a role(if not made already) that has no ability to text and assign it to the user  
     @commands.command()
+    @commands.check(has_mute_permission)
     async def mutetxt(ctx, member: discord.Member):
     # Assuming you have a role named 'Muted'
         txtmuted_role = discord.utils.get(ctx.guild.roles, name='TxtMuted')
@@ -132,6 +140,7 @@ class Admin(commands.Cog):
             
     #text unmute command        
     @commands.command()
+    @commands.check(has_mute_permission)
     async def unmutetxt(ctx, member: discord.Member):
         txtmuted_role = discord.utils.get(ctx.guild.roles, name='Muted')
 
@@ -142,7 +151,30 @@ class Admin(commands.Cog):
             await ctx.send(f'{member.mention} is not muted.')
             
             
+    #voice mute command  
+    #jist checking if the user is in a voice and if so mute them
+          
+    @commands.command()
+    @commands.check(has_mute_permission)
+    async def mute(self, ctx, member: discord.Member):
+        if member.voice:
+            await member.edit(mute=True)
+            await ctx.send(f"{member.mention} has been muted in voice")
+        else:
+            await ctx.send(f'{member.mention} is not in a voice channel.')
             
+    #unmute command
+    #jist checking the user is mute and if they are unmuting them        
+    @commands.command()
+    @commands.check(has_mute_permission)
+    async def unmute(self, ctx, member: discord.Member):
+        if member.voice.mute:
+            await member.edit(mute=False)
+            await ctx.send(f"{member.mention} has been unmuted.")
+        else:
+            await ctx.send(f"{member.mention} isnt muted")
+                    
+        
     
 
 async def setup(client):
