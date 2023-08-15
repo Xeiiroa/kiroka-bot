@@ -114,9 +114,36 @@ class Admin(commands.Cog):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("you do not have permissions to assign that role.") 
         
-    
-        
+    #text mute command  
+    #the jist of the command is you make a role(if not made already) that has no ability to text and assign it to the user  
+    @commands.command()
+    async def mutetxt(ctx, member: discord.Member):
+    # Assuming you have a role named 'Muted'
+        txtmuted_role = discord.utils.get(ctx.guild.roles, name='TxtMuted')
 
+        if not txtmuted_role:
+            # Create the 'Muted' role if it doesn't exist
+            txtmuted_role = await ctx.guild.create_role(name='TxtMuted')
+            for channel in ctx.guild.channels:
+                await channel.set_permissions(txtmuted_role, send_messages=False)
+
+        await member.add_roles(txtmuted_role)
+        await ctx.send(f'{member.mention} has been muted.')
+            
+    #text unmute command        
+    @commands.command()
+    async def unmutetxt(ctx, member: discord.Member):
+        txtmuted_role = discord.utils.get(ctx.guild.roles, name='Muted')
+
+        if txtmuted_role in member.roles:
+            await member.remove_roles(txtmuted_role)
+            await ctx.send(f'{member.mention} has been unmuted.')
+        else:
+            await ctx.send(f'{member.mention} is not muted.')
+            
+            
+            
+    
 
 async def setup(client):
     await client.add_cog(Admin(client))
