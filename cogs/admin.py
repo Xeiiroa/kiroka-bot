@@ -146,7 +146,8 @@ class Admin(commands.Cog):
                 
                 #applying the permission change
                 await channel.set_permissions(member, overwrite=member_permission)
-        
+            
+            await member.add_roles(txtmuted_role)
             await ctx.send(f'{member.mention} has been text muted.')
         
     @txtmute.error
@@ -172,17 +173,16 @@ class Admin(commands.Cog):
                 member_permission.update(send_messages=True)
                 
                 await channel.set_permission(member, overwrite=member_permission)
-                
+            
+            await member.remove_roles(txtmuted_role)   
             await ctx.send(f"{member.mention} is now able to send messages again")
             
         else:
             await ctx.send(f"{member.mention} isn't muted")
             
-    #voice mute command  
-    #jist checking if the user is in a voice and if so mute them
-          
+    #voice mute command         
     @commands.command()
-    @commands.check(has_mute_permission)
+    @commands.has_permissions(mute_members=True)
     async def mute(self, ctx, member: discord.Member):
         if member.voice:
             if member.voice.mute:
@@ -193,37 +193,59 @@ class Admin(commands.Cog):
         else:
             await ctx.send(f'{member.mention} is not in a voice channel.')
             
+            
+    @mute.error
+    async def mute_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to mute")
+            
     #unmute command
     #jist checking the user is mute and if they are unmuting them        
     @commands.command()
-    @commands.check(has_mute_permission)
+    @commands.has_permissions(mute_members=True)
     async def unmute(self, ctx, member: discord.Member):
         if member.voice.mute:
             await member.edit(mute=False)
             await ctx.send(f"{member.mention} has been unmuted.")
         else:
             await ctx.send(f"{member.mention} isnt muted")
+         
+    @unmute.error
+    async def unmute_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to unmute")  
             
+                  
     @commands.command()
-    @commands.check(has_deafen_permission)
+    @commands.has_permissions(deafen_members=True)
     async def deafen(self,ctx, member: discord.Member):
         if member.voice:
             if member.voice.deaf:
-                await ctx.send("Theyre already deafened")
+                await ctx.send(f"{member.mention} is already deafened")
             else: 
                 await member.edit(deafen=True)
                 await ctx.send(f"{member.mention} has been deafened.")
         else:
             await ctx.send(f"{member.mention} is not in a voice channel")
             
+    @deafen.error
+    async def deafen_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to deafen members")
+            
     @commands.command()
-    @commands.check(has_deafen_permission)
+    @commands.has_permissions(deafen_members=True)
     async def undeafen(self, ctx, member: discord.Member):
         if member.voice.deaf:
             await member.edit(deafen=False)
             await ctx.send(f"{member.mention} has been undeafened.") 
         else:
-            await ctx.send(f"they arent deafened")   
+            await ctx.send(f"they arent deafened")
+        
+    @undeafen.error
+    async def undeafen_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to undeafen")       
         
     #purge command
     @commands.command()
@@ -231,6 +253,8 @@ class Admin(commands.Cog):
     async def purge(self, ctx, count: int):
         await ctx.channel.purge(limit=count)
         await ctx.send(f"{count} message(s) deleted")
+        
+    
             
                     
         
