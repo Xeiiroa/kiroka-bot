@@ -46,7 +46,6 @@ class Admin(commands.Cog):
             
     
     
-    
     #ban command        
     @commands.command()
     @has_permissions(ban_members=True)
@@ -61,9 +60,6 @@ class Admin(commands.Cog):
             await ctx.send("you're too low in the hierarchy to do that lol.")
       
       
-    
-    
-    
     #unban command        
     @commands.command()
     @commands.guild_only()
@@ -89,9 +85,6 @@ class Admin(commands.Cog):
             await ctx.send("You dont have permission to unban people")
             
     
-    
-    
-    
     #addrole command
     @commands.command(pass_context = True)
     @commands.has_permissions(manage_roles = True)   
@@ -111,8 +104,6 @@ class Admin(commands.Cog):
     
     
     
-    
-        
     #remove roles from a user
     @commands.command(pass_context = True)
     @commands.has_permissions(manage_roles = True)   
@@ -129,35 +120,63 @@ class Admin(commands.Cog):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("you do not have permissions to assign that role.") 
         
-    #text mute command  
-    #the jist of the command is you make a role(if not made already) that has no ability to text and assign it to the user  
+    
+    """has potential to be better"""    
+    #text mute
     @commands.command()
-    @commands.check(has_mute_permission)
-    async def mutetxt(ctx, member: discord.Member):
-    # Assuming you have a role named 'Muted'
-        txtmuted_role = discord.utils.get(ctx.guild.roles, name='TxtMuted')
-
+    @commands.has_permissions(mute_members=True)
+    async def txtmute(ctx, member: discord.Member):
+        txtmuted_role = discord.utils.get(ctx.guild.roles, name='TextMuted')
+        
+        #checking if theres a textmuted rule and if there isnt making one
         if not txtmuted_role:
-            # Create the 'Muted' role if it doesn't exist
-            txtmuted_role = await ctx.guild.create_role(name='TxtMuted')
-            for channel in ctx.guild.channels:
-                await channel.set_permissions(txtmuted_role, send_messages=False)
-
-        await member.add_roles(txtmuted_role)
-        await ctx.send(f'{member.mention} has been muted.')
+            txtmuted_role = await ctx.guild.create_role(name="TextMuted")
+            
+        #checking if the user has the textmuted role and sending an error message if they do    
+        if txtmuted_role in member.roles:
+            await ctx.send(f"{member.mention} is already text muted")
+        else:
+            for channel in ctx.guild.text_channels:
+                member_permission = channel.permission_for(member)
+                
+                if not member_permission.send_messages:
+                    continue
+                
+                member_permission.update(send_messages=False)
+                
+                #applying the permission change
+                await channel.set_permissions(member, overwrite=member_permission)
+        
+            await ctx.send(f'{member.mention} has been text muted.')
+        
+    @txtmute.error
+    async def txtmute_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have the permissions to mute someone in text")
+                
             
     #text unmute command        
     @commands.command()
-    @commands.check(has_mute_permission)
+    @commands.has_permissions(mute_members=True)
     async def unmutetxt(ctx, member: discord.Member):
-        txtmuted_role = discord.utils.get(ctx.guild.roles, name='Muted')
-
+        txtmuted_role = discord.utils.get(ctx.guild.roles, name='TextMuted')
+        
         if txtmuted_role in member.roles:
-            await member.remove_roles(txtmuted_role)
-            await ctx.send(f'{member.mention} has been unmuted.')
-        else:
-            await ctx.send(f'{member.mention} is not muted.')
+            for channel in ctx.guild.text_channels:
+                
+                member_permission = channel.permissions_for(member)
+                
+                if member_permission.send_messages:
+                    continue
+                
+                member_permission.update(send_messages=True)
+                
+                await channel.set_permission(member, overwrite=member_permission)
+                
+            await ctx.send(f"{member.mention} is now able to send messages again")
             
+        else:
+            await ctx.send(f"{member.mention} isn't muted")
             
     #voice mute command  
     #jist checking if the user is in a voice and if so mute them
@@ -206,6 +225,12 @@ class Admin(commands.Cog):
         else:
             await ctx.send(f"they arent deafened")   
         
+    #purge command
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def purge(self, ctx, count: int):
+        await ctx.channel.purge(limit=count)
+        await ctx.send(f"{count} message(s) deleted")
             
                     
         

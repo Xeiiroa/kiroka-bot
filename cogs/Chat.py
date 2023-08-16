@@ -48,10 +48,7 @@ class Chat(commands.Cog):
         else:
             ctx.send(f"{choiceb} wins!")
     
-    "grab the user mentioneds most recent message and mock it"
-    @commands.command()
-    async def mock():
-        ...
+    
             
         
     
