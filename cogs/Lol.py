@@ -8,8 +8,8 @@ import json
 class Lol(commands.Cog):
     def __init__(self, client):
         self.client = client
-       
-    #TODO finish adding all the messages from the old command to the new one    
+    
+    #returns the users league stats  
     @commands.command() 
     async def leagueprofile(self, ctx, summonername:str, region = "na1"):
         regions = ["BR1","EUN1","EUW1","JP1","KR","LA1","LA2","NA1","OC1","PH2","RU","SG2","TH2","TR1","TW2","VN2"]
@@ -20,9 +20,39 @@ class Lol(commands.Cog):
         if summonerid == None:
             ctx.send(f"player {summonername} not found.")
         else:
-            ...
+            player_pfp = self.get_pfp(summonername, region)
+            player_level = self.get_level(summonername, region)
+            ranked_solo, ranked_flex = self.get_rank(summonername, region)
+            top_champions = self.get_mastery(summonerid, region)
             
-             
+            embed_message = discord.Embed(title=f"{summonername}'s profile")
+            embed_message.set_thumbnail(url=f"http://ddragon.leagueoflegends.com/cdn/13.15.1/img/profileicon/{player_pfp}.png")
+            embed_message.add_field(name="Summoner level" , value=player_level, inline= False)
+            embed_message.add_field(name="Ranked Solo/Duo", value=ranked_solo, inline=False)
+            embed_message.add_field(name="Ranked Flex", value=ranked_flex,inline=False)
+            embed_message.add_field(name="Top champions", value=top_champions,inline=False)
+            
+            await ctx.send(embed = embed_message)
+       
+    
+    #returns the most recent patch notes
+    @commands.command()
+    async def lolpatchnotes(self, ctx):
+        version = self.get_latest_game_version()
+        patch_url = f"https://na.leagueoflegends.com/en-us/news/game-updates/{version}-patch-notes/"
+
+        embed = discord.Embed()
+            
+        embed = discord.Embed(
+            title=f"**[patch {version.replace('.1', '')} notes3]{patch_url}**",
+            description="The most recent patch notes for League of Legends",
+            color=discord.Color.blue()
+        )
+        await ctx.send(embed=embed)
+    
+
+    
+    #utility functions
     def get_summonerid(self, summonername:str, region: str):
         response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}")
         player_info = response.json()
@@ -47,11 +77,9 @@ class Lol(commands.Cog):
         return player_level
     
     def get_rank(self, summonerid, region):
-        ranked_solo = {}
-        ranked_flex = {}
         ranked_flex_message = "unranked"
         ranked_solo_message = "unranked"
-        response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
+        response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summonerid}?api_key={RIOT_KEY}")
         
         for stats in response.json():
             if "RANKED_SOLO_5x5" in stats.values():
@@ -69,121 +97,46 @@ class Lol(commands.Cog):
                 ranked_solo_message = f"{stats['tier']} {stats['rank']} {stats['leaguepoints']} LP \
                     {stats['wins']}W {stats['losses']}L {winrate}"
                 
-        return ranked_solo_message, ranked_flex_message        
+        return ranked_solo_message, ranked_flex_message
+    
+    
+    #gets the latest game version for request links  
+    def get_latest_game_version(self):
+        response = requests.get("https://ddragon.leagueoflegends.com/api/versions.json")
+        data = response.json()
         
+        if data:
+            return data[0] #[0] is the most recent patch
+        return '13.15.1'
+    
+    
+    #returns a dict of all the champions with thier given ids and names together
+    def get_champ_names(self):
+        version = self.get_latest_game_version()
+        response = requests.get(f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json")
+        data = response.json()
+        champion_list = {champion['key']: champion['name'] for champion in data['data'].values()}
+        return champion_list
         
-    #TODO create the mastery function and allow it to have name conversion   
-    def get_champname(self)
     
     def get_mastery(self, summonerid, region):
-        mastery = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
+        response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summonerid}?api_key={RIOT_KEY}")
+        mastery = response.json
         
-    
+        if len(mastery) == 0:
+            return "no champions played"
         
+        top_champs = mastery[:min(len(mastery), 3)] #get up to the top 3 champions info
+        champion_info = []
+        seperator = " "
         
-
-    
+        for champion in top_champs:
+            champion_id = str(champion['championId'])
+            champion_name = self.get_champ_name.get(champion_id, "champname")
+            champion_info.append(f"{champion_name} M{champion['championLevel']} {champion['championPoints']}pts\n")
         
-    #  FIXME clean this up. remake the command using normal functions to avoid long term confusion   
-    @commands.command()
-    async def leagueprofile(self, ctx, summonername: str, region: str):
-        regions = ["BR1","EUN1","EUW1","JP1","KR","LA1","LA2","NA1","OC1","PH2","RU","SG2","TH2","TR1","TW2","VN2"]
-        
-        # getting data for summoner name, profile icon id, level, and account idea for further inspection
-        summonerinfolink = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}")
-        player_info= summonerinfolink.json()
-        player_pfp = player_info["profileIconId"]
-        player_level = player_info["summonerLevel"]
-        summoneriD = player_info["id"]
-        ranked_solo = {}
-        ranked_flex = {}
-        ranked_flex_message = "unranked"
-        ranked_solo_message = "unranked"
-        summonerrankinfo = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
-        #done
-        
-
-        mastery = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
-        """get back to this to allow the site to update at the date you choose"""
-        champ_info = requests.get("https://ddragon.leagueoflegends.com/cdn/13.15.1/data/en_US/champion.json")
-        champ_stats = {"champname":[], "championids":[], "masterylvl":[], "masterypoints":[]}
-        
-        for i in mastery.json():
-            if len(champ_stats["championids"]) == 3:
-                break
-    
-            elif "championId" in i.keys():
-                champ_stats["championids"].append(i["championId"])
-                champ_stats["masterylvl"].append(i["championLevel"])
-                champ_stats["masterypoints"].append(i["championPoints"])
-                #create a counter that only allows the loop to go 3 times
-                
-        
-        
-        for j in champ_stats["championids"]:
-            for k in champ_info:
-        #find champ number and take its name and replace said id with said name
-                if "key" in k.keys():
-                    if k["key"] == champ_stats["championids"][j]: 
-                        champ_stats["champname"].append(k["name"])
-                
-
-        masterystring = f"{champ_stats['champname'][0]} M{champ_stats['masterylvl'][0]} {champ_stats['masterypoints'][0]} \n\
-            {champ_stats['champname'][1]} M{champ_stats['masterylvl'][1]} {champ_stats['masterypoints'][1]} \n\
-                {champ_stats['champname'][2]} M{champ_stats['masterylvl'][2]} {champ_stats['masterypoints'][2]}"
-                
-                
-                
-        
-            
-            
-            
-            
-        
-                
-                
-            
-            
-        
-        
-        
-        
-        
-        
-        
-        #the embed message for the player stats and all its parameters
-        embed_message = discord.Embed(title=f"Profile for {summonername}")
-        embed_message.set_thumbnail(url=f"http://ddragon.leagueoflegends.com/cdn/13.15.1/img/profileicon/{player_pfp}.png")
-        embed_message.add_field(name="Summoner level" , value=player_level, inline= False)
-        embed_message.add_field(name="Ranked Solo/Duo", value=ranked_solo_message, inline=False)
-        embed_message.add_field(name="Ranked Flex", value=ranked_flex_message,inline=False)
-        embed_message.add_field(name="Top champions", value=masterystring,inline=False)
-        embed_message.add_field(name="Recent Games", value=...,inline=False)
-        embed_message.add_field(name="Last Game", value=...,inline=False)
-        
-        await ctx.send(embed = embed_message)
-        
-        
-            
-    @leagueprofile.error
-    async def leagueprofile_error(self,ctx):
-        ...
-        
-    
-    @commands.command()
-    async def patchnotes(self, ctx):
-        link = "https://na1.api.riotgames.com/lol/patches"
-        response = requests.get(link, params={'api_key': RIOT_KEY})
-        most_recent_patch = response.json()[0]
-        patchnotes = most_recent_patch["notes"]
-        
-        print(patchnotes)
-    
-    
-    @commands.command
-    async def lolpatchnotes():
-        ...    
-           
+        newchampion_info = seperator.join(champion_info)    
+        return newchampion_info
     
     #Ready event    
     @commands.Cog.listener()

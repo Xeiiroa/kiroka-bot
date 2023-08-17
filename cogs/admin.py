@@ -197,7 +197,7 @@ class Admin(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_nicknames=True)
     async def rename(self, ctx, member: discord.Member, *, new_name: str):
-        await member.edut(nick=new_name)
+        await member.edit(nick=new_name)
         await ctx.send(f"{member.mention}'s nickname has been updated")
         
     
