@@ -8,10 +8,84 @@ import json
 class Lol(commands.Cog):
     def __init__(self, client):
         self.client = client
+       
+    #TODO finish adding all the messages from the old command to the new one    
+    @commands.command() 
+    async def leagueprofile(self, ctx, summonername:str, region = "na1"):
+        regions = ["BR1","EUN1","EUW1","JP1","KR","LA1","LA2","NA1","OC1","PH2","RU","SG2","TH2","TR1","TW2","VN2"]
+        if region.lower() not in regions:
+            raise commands.BadArgument("region not found")
+        
+        summonerid = self.get_summonerid(summonername, region)
+        if summonerid == None:
+            ctx.send(f"player {summonername} not found.")
+        else:
+            ...
+            
+             
+    def get_summonerid(self, summonername:str, region: str):
+        response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}")
+        player_info = response.json()
+        if response.status_code == 404:
+            return None
+        else:
+            summoneriD = player_info["id"]
+            return summoneriD
+    
+    
+    def get_pfp(self, summonername:str, region: str):
+        response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}")
+        player_info = response.json()
+        player_pfp = player_info["profileIconId"]
+        return player_pfp
+    
+    
+    def get_level(self, summonername:str, region: str):
+        response = requests.get((f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}"))
+        player_info = response.json()
+        player_level = player_info["summonerLevel"]
+        return player_level
+    
+    def get_rank(self, summonerid, region):
+        ranked_solo = {}
+        ranked_flex = {}
+        ranked_flex_message = "unranked"
+        ranked_solo_message = "unranked"
+        response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
+        
+        for stats in response.json():
+            if "RANKED_SOLO_5x5" in stats.values():
+                total_games = stats["wins"] + stats["losses"]
+                winrate = total_games / stats["wins"] * 100
+                
+                ranked_solo_message = f"{stats['tier']} {stats['rank']} {stats['leaguepoints']} LP \
+                    {stats['wins']}W {stats['losses']}L {winrate}"
+                
+            
+            if "RANKED_FLEX_SR" in stats.values():
+                total_games = stats["wins"] + stats["losses"]
+                winrate = total_games / stats["wins"] * 100
+                
+                ranked_solo_message = f"{stats['tier']} {stats['rank']} {stats['leaguepoints']} LP \
+                    {stats['wins']}W {stats['losses']}L {winrate}"
+                
+        return ranked_solo_message, ranked_flex_message        
         
         
+    #TODO create the mastery function and allow it to have name conversion   
+    def get_champname(self)
+    
+    def get_mastery(self, summonerid, region):
+        mastery = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
         
-    @commands.command
+    
+        
+        
+
+    
+        
+    #  FIXME clean this up. remake the command using normal functions to avoid long term confusion   
+    @commands.command()
     async def leagueprofile(self, ctx, summonername: str, region: str):
         regions = ["BR1","EUN1","EUW1","JP1","KR","LA1","LA2","NA1","OC1","PH2","RU","SG2","TH2","TR1","TW2","VN2"]
         
@@ -21,60 +95,13 @@ class Lol(commands.Cog):
         player_pfp = player_info["profileIconId"]
         player_level = player_info["summonerLevel"]
         summoneriD = player_info["id"]
-        
-        
-        #getting data for summoners ranked stats
         ranked_solo = {}
         ranked_flex = {}
         ranked_flex_message = "unranked"
         ranked_solo_message = "unranked"
         summonerrankinfo = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
-        rank_info = summonerrankinfo.json()
-        for stats in summonerrankinfo.json():
-            if "RANKED_SOLO_5x5" in stats.values():
-                ranked_solo["ranknum"] = stats["rank"]
-                ranked_solo["division"] = stats["tier"]
-                ranked_solo["lp"] = stats["leaguePoints"]
-                ranked_solo["wins"] = stats["wins"]
-                ranked_solo["losses"] = stats["losses"]
-
-                games_ranked_solo = stats["wins"] + stats["losses"]
-                ranked_solo["winrate"] = games_ranked_solo / stats["wins"] * 100
-                
-                ranked_solo_message = f"{ranked_solo['division']} {ranked_solo['ranknum']} {ranked_solo['lp']} LP \n \
-                    {ranked_solo['wins']}W {ranked_solo['losses']}L {ranked_solo['winrate']} "
-                
-            if "RANKED_FLEX_SR" in stats.values():
-                ranked_flex["ranknum"] = stats["rank"]
-                ranked_flex["division"] = stats["tier"]
-                ranked_flex["lp"] = stats["leaguePoints"]
-                ranked_flex["wins"] = stats["wins"]
-                ranked_flex["losses"] = stats["losses"]
-
-                games_ranked_flex = stats["wins"] + stats["losses"]
-                ranked_solo["winrate"] = games_ranked_flex / stats["wins"] * 100
-                
-                ranked_flex_message = f"{ranked_flex['division']} {ranked_flex['ranknum']} {ranked_flex['lp']} LP \n \
-                    {ranked_flex['wins']}W {ranked_flex['losses']}L {ranked_flex['winrate']} "
-            
-            
-            
-        #getting champion mastery information
-        """
-        current idea process
+        #done
         
-        get the links from needed 
-        create a multiple value dict to hold each value
-        go over the first link and get the champ id number, masterylvl and points and append it to the dict
-        
-        iterate over champ info data link and check if the number matches the champion id
-        if it does append that name to the the value champname
-        
-        
-        
-        
-        """
-
 
         mastery = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summoneriD}?api_key={RIOT_KEY}")
         """get back to this to allow the site to update at the date you choose"""

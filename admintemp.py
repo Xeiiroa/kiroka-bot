@@ -11,17 +11,25 @@ class Admin(commands.Cog):
     def __init__ (self, client):
         self.client = client
         
+    def has_mute_permission(ctx):
+        member = ctx.author
+        for role in member.roles:
+            if role.permissions.mute_members:
+                return True
+        return False
+    
+    def has_deafen_permission(ctx):
+        member = ctx.author
+        for role in member.roles:
+            if role.permissions.deafen_members:
+                return True
+        return False
+
+        
     #Ready event    
     @commands.Cog.listener()
     async def on_ready(self):
         print("Admin is ready.")
-    
-    
-    #error check for all commands that require permissions
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send("you don't have the proper permissions to use this command")
         
     #kick command
     @commands.command()
@@ -30,6 +38,13 @@ class Admin(commands.Cog):
         await member.kick(reason=reason)
         await ctx.send(f"user {member} has been kicked.")
     
+    #kick error check    
+    @kick.error
+    async def kick_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you're too low in the hierarchy to do that lol.")
+            
+    
     
     #ban command        
     @commands.command()
@@ -37,8 +52,14 @@ class Admin(commands.Cog):
     async def ban(self, ctx, member: discord.Member, *, reason = None):
         await member.ban(reason=reason)
         await ctx.send(f"user {member} has been banned.")
-        
     
+    #ban errorcheck    
+    @ban.error
+    async def ban_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you're too low in the hierarchy to do that lol.")
+      
+      
     #unban command        
     @commands.command()
     @commands.guild_only()
@@ -57,6 +78,11 @@ class Admin(commands.Cog):
             await ctx.guild.unban(user) 
             await ctx.send(f"Unbanned {user.mention}")
             return
+        
+    @unban.error
+    async def unban_error(self, ctx, error):    
+        if isinstance(error,commands.MissingPermissions):
+            await ctx.send("You dont have permission to unban people")
             
     
     #addrole command
@@ -70,8 +96,15 @@ class Admin(commands.Cog):
             await user.add_roles(role)
             await ctx.send(f"{user.mention} now has the role {role}")
     
+    #addrole errorcheck        
+    @addrole.error
+    async def role_error(self,ctx,error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you do not have permissions to assign that role.")        
     
-    #remove role command
+    
+    
+    #remove roles from a user
     @commands.command(pass_context = True)
     @commands.has_permissions(manage_roles = True)   
     async def removerole(self, ctx, user: discord.Member, *, role: discord.Role):
@@ -82,7 +115,13 @@ class Admin(commands.Cog):
             await user.remove_roles(role)
             await ctx.send(f"{user.mention} no longer has the role {role}.")
             
-      
+    @removerole.error
+    async def role_error(self,ctx,error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you do not have permissions to assign that role.") 
+        
+    
+    """has potential to be better"""    
     #text mute
     @commands.command()
     @commands.has_permissions(mute_members=True)
@@ -110,6 +149,11 @@ class Admin(commands.Cog):
             
             await member.add_roles(txtmuted_role)
             await ctx.send(f'{member.mention} has been text muted.')
+        
+    @txtmute.error
+    async def txtmute_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have the permissions to mute someone in text")
                 
             
     #text unmute command        
@@ -135,7 +179,6 @@ class Admin(commands.Cog):
             
         else:
             await ctx.send(f"{member.mention} isn't muted")
-      
             
     #voice mute command         
     @commands.command()
@@ -151,6 +194,11 @@ class Admin(commands.Cog):
             await ctx.send(f'{member.mention} is not in a voice channel.')
             
             
+    @mute.error
+    async def mute_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to mute")
+            
     #unmute command
     #jist checking the user is mute and if they are unmuting them        
     @commands.command()
@@ -161,8 +209,13 @@ class Admin(commands.Cog):
             await ctx.send(f"{member.mention} has been unmuted.")
         else:
             await ctx.send(f"{member.mention} isnt muted")
-           
-                        
+         
+    @unmute.error
+    async def unmute_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to unmute")  
+            
+                  
     @commands.command()
     @commands.has_permissions(deafen_members=True)
     async def deafen(self,ctx, member: discord.Member):
@@ -175,7 +228,11 @@ class Admin(commands.Cog):
         else:
             await ctx.send(f"{member.mention} is not in a voice channel")
             
-      
+    @deafen.error
+    async def deafen_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to deafen members")
+            
     @commands.command()
     @commands.has_permissions(deafen_members=True)
     async def undeafen(self, ctx, member: discord.Member):
@@ -184,7 +241,11 @@ class Admin(commands.Cog):
             await ctx.send(f"{member.mention} has been undeafened.") 
         else:
             await ctx.send(f"they arent deafened")
-              
+        
+    @undeafen.error
+    async def undeafen_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to undeafen")       
         
     #purge command
     @commands.command()
@@ -200,7 +261,11 @@ class Admin(commands.Cog):
         await member.edut(nick=new_name)
         await ctx.send(f"{member.mention}'s nickname has been updated")
         
-    
+    @rename.error
+    async def rename_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("you dont have permissions to rename")
+            
     
             
         
