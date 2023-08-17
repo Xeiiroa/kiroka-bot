@@ -1,4 +1,4 @@
-# kiroka-bot
+# Oyasu-bot
  Discord bot
 
 Oyasu. A  multipurpose discord bot gudied towards the interest of the aveage discord gamer with commands towards server modertation
