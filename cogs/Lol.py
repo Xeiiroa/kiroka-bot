@@ -18,7 +18,7 @@ class Lol(commands.Cog):
         
         summonerid = self.get_summonerid(summonername, region)
         if summonerid == None:
-            ctx.send(f"player {summonername} not found.")
+            await ctx.send(f"player {summonername} not found.")
         else:
             player_pfp = self.get_pfp(summonername, region)
             player_level = self.get_level(summonername, region)

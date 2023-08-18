@@ -19,15 +19,15 @@ class Chat(commands.Cog):
         for i in range(die):
             x = random.randint(1, 6)
             if die > 1:
-                ctx.send(f"you rolled {x} for die {i}")
+                await ctx.send(f"you rolled {x} for die {i}")
             else:
-                ctx.send(f"you rolled {x}")
+                await ctx.send(f"you rolled {x}")
                 
     #pick a number between x and y            
     @commands.command()
     async def between(self, ctx, x = 0, y = 10):
         z = random.randint(x, y)
-        ctx.send(z)
+        await ctx.send(z)
         
         
     #flip a coin
@@ -35,18 +35,18 @@ class Chat(commands.Cog):
     async def flip(self , ctx):
         result = random.randint(1,2)
         if result == 1:
-            ctx.send("Heads.")
+            await ctx.send("Heads.")
         else:
-            ctx.send("Tails.")
+            await ctx.send("Tails.")
     
     #choose between 2 choices
     @commands.command()
     async def choose(self, ctx, choicea="choice A", choiceb ="choice B"):
         x = random.randint(1,2)
         if x == 1:
-            ctx.send(f"{choicea} wins!")
+            await ctx.send(f"{choicea} wins!")
         else:
-            ctx.send(f"{choiceb} wins!")
+            await ctx.send(f"{choiceb} wins!")
     
     
             

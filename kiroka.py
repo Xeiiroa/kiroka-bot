@@ -8,7 +8,7 @@ from tokens import *
 
 
 #declaring the prefixes for commands
-client = commands.Bot(command_prefix = '.oy', intents = discord.Intents.all())
+client = commands.Bot(command_prefix = '!', intents = discord.Intents.all())
 
 #bot ready message
 @client.event
