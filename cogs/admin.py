@@ -39,26 +39,6 @@ class Admin(commands.Cog):
         await ctx.send(f"user {member} has been banned.")
         
     
-    #unban command        
-    @commands.command()
-    @commands.guild_only()
-    @has_permissions(administrator=True)
-    async def unban(self, ctx, member: discord.Member, *, reason=None):
-        
-        banned_users = await ctx.guild.bans()
-        print(banned_users)
-        member_name, member_descriminator = member.split("#")
-        print(member_name)
-        
-        for ban_entry in banned_users:
-            user = ban_entry.user
-            
-        if (user.name, user.discriminaror )  == (member_name, member_descriminator):
-            await ctx.guild.unban(user) 
-            await ctx.send(f"Unbanned {user.mention}")
-            return
-            
-    
     #addrole command
     @commands.command(pass_context = True)
     @commands.has_permissions(manage_roles = True)   
