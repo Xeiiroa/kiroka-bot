@@ -19,7 +19,7 @@ class Lol(commands.Cog):
         
         summonerid = self.get_summonerid(summonername, region)
         if summonerid == None:
-            await ctx.send(f"player {summonername} not found.")
+            await ctx.send(f"player {summonername.title()} not found.")
         else:
             version = self.get_latest_game_version()
             player_pfp = self.get_pfp(summonername, region)
@@ -27,16 +27,15 @@ class Lol(commands.Cog):
             ranked_solo, ranked_flex = self.get_rank(summonerid, region)
             top_champions = self.get_mastery(summonerid, region)
             
-            
-            
-            #! still not printing with and without ranked stats
+      
             embed = discord.Embed(
                 title=f"{summonername.title()}'s stats- lvl {player_level}",
                 color=discord.Color.blue()
             )
-            #! possibly may not submit
-            #possible reasons being the patch number in the link so recheck that
+            
+            
             embed.set_thumbnail(url=f"http://ddragon.leagueoflegends.com/cdn/{version}/img/profileicon/{player_pfp}.png")
+            
             
             embed.add_field(name="Top champions", value=top_champions, inline=True)
             embed.add_field(name="Ranked Solo/Duo", value=ranked_solo, inline=False)
