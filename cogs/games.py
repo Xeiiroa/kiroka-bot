@@ -103,12 +103,45 @@ class Games(commands.Cog):
                 await ctx.send(embed=embed)
             except Exception as e:
                 print(f"An error occurred: {e}")
+                
+    #*Valorant commands
     
+    @commands.command()
+    async def valpatchnotes(self, ctx, region="na"):
+        regions = ["ap","br","eu","kr","latam","na","esports"]
+        if region.lower() not in regions:
+            await ctx.send("non-valid region provided" + "\n" + "valid regions include: ap, br, eu, kr, latam, na")
+        else:
+            version = self.get_latest_game_version_val(region)
+            patch_url=f"https://playvalorant.com/en-us/news/game-updates/valorant-patch-notes-{version}/"
+            
+            embed = discord.Embed(
+                title=f"Valorant Patch {version.replace('-', '.')} notes",
+                color=discord.Color.blue(),
+                description="The most recent patch notes for Valorant",
+                url=patch_url
+            )
+            await ctx.send(embed=embed)
+            
+            
+        
+        
     
 
     #* VALORANT UTILITY FUNCTIONS
-
-
+    def get_latest_game_version_val(self, region):
+        url=f"https://{region}.api.riotgames.com/val/content/v1/contents"
+        headers = {
+            "X-Riot-Token": RIOT_KEY
+        }
+        response = requests.get(url, headers=headers)
+        data = response.json()
+    
+        _, version = data['version'].split("-")
+        if version.startswith("0"):
+            return version[1:].replace(".", "-")
+        else:
+            return version.replace(".", "-")
 
 
 
@@ -151,9 +184,6 @@ class Games(commands.Cog):
             return stats
 
 
-
-
-    
     #* LEAGUE UTILITY FUNCTIONS
     def get_summonerid(self, summonername:str, region: str):
         response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}")
