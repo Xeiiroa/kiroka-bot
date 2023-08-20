@@ -61,7 +61,7 @@ class Lol(commands.Cog):
     
 
     
-    # ? qutility functions
+    #? utility functions
     def get_summonerid(self, summonername:str, region: str):
         response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}")
         player_info = response.json()

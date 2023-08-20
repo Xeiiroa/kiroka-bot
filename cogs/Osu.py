@@ -92,6 +92,57 @@ class Osu(commands.Cog):
                 print("No top plays found for the player.")
         else:
             print("Failed to retrieve top play information.")
+    
+        
+    def get_profile(self, playername):
+        stats = {}
+        url = "https://osu.ppy.sh/api/get_user"
+        params = {
+            "k": OSU_KEY,
+            "u": playername
+        }
+        response = requests.get(url, params=params)
+        data=response.json()
+        
+        #TODO append these things to the dict and return them
+        """
+        #userid, 
+        # playcount, 
+        # rankedscore, 
+        # totalscore, 
+        # country, 
+        # globalrank, 
+        # countryrank, 
+        # level(remove all decimal points)
+        # pp(remove all decimal points)
+        # accuracy(remove all decimal points besides the last 2)
+        # playtime(default is in seconds so ill have to use datetime to change it to days hours min)
+        """
+        
+        #*remember that the userid is what leads to the playerlink so you can hyperlink it to the embed link later on
+        stats += ...
+        
+    #get the count for ranks acheived (100 s ranks, 400 a ranks, etc)
+    def get_ranks(self, playername):
+        stats={}
+        url = "https://osu.ppy.sh/api/get_user"
+        params = {
+            "k": OSU_KEY,
+            "u": playername
+        }
+        response = requests.get(url, params=params)
+        data=response.json()
+        
+        #TODO append these things to the dict and return them
+        """
+        #silver ss ranks
+        #ss ranks
+        #silver s ranks
+        #s ranks
+        #a ranks
+        """
+        
+        
         
         
         
