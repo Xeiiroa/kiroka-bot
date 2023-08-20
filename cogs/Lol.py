@@ -36,9 +36,8 @@ class Lol(commands.Cog):
             
             embed.set_thumbnail(url=f"http://ddragon.leagueoflegends.com/cdn/{version}/img/profileicon/{player_pfp}.png")
             
-            
+            embed.add_field(name="Ranked Solo/Duo", value=ranked_solo, inline=True)
             embed.add_field(name="Top champions", value=top_champions, inline=True)
-            embed.add_field(name="Ranked Solo/Duo", value=ranked_solo, inline=False)
             embed.add_field(name="Ranked Flex", value=ranked_flex, inline=False)
             
             await ctx.send(embed=embed)
@@ -140,7 +139,7 @@ class Lol(commands.Cog):
         if len(mastery) == 0:
             return "no champions played"
         
-        top_champs = mastery[:min(len(mastery), 3)] #get up to the top 3 champions info
+        top_champs = mastery[:min(len(mastery), 5)] #get up to the top 5 champions info
         champion_info = []
         seperator = " "
         
