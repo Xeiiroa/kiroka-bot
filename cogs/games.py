@@ -1,13 +1,23 @@
+#file to hold game related commands
 import discord
 from discord.ext import commands
 from tokens import *
 
 import requests
 import json
+import datetime
 
-class Lol(commands.Cog):
+class Games(commands.Cog):
     def __init__(self, client):
         self.client = client
+        
+    #Ready event    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print("Games is ready.")
+    
+    #*LEAGUE OF LEGENDS COMMANDS
+    
     
     #returns the users league stats  
     @commands.command() 
@@ -21,11 +31,11 @@ class Lol(commands.Cog):
         if summonerid == None:
             await ctx.send(f"player {summonername.title()} not found.")
         else:
-            version = self.get_latest_game_version()
-            player_pfp = self.get_pfp(summonername, region)
-            player_level = self.get_level(summonername, region)
-            ranked_solo, ranked_flex = self.get_rank(summonerid, region)
-            top_champions = self.get_mastery(summonerid, region)
+            version = self.get_latest_game_version_lol()
+            player_pfp = self.get_pfp_lol(summonername, region)
+            player_level = self.get_level_lol(summonername, region)
+            ranked_solo, ranked_flex = self.get_rank_lol(summonerid, region)
+            top_champions = self.get_mastery_lol(summonerid, region)
             
       
             embed = discord.Embed(
@@ -43,10 +53,10 @@ class Lol(commands.Cog):
             await ctx.send(embed=embed)
        
     
-    #returns the most recent patch notes
+    #returns the most recent patch notes for lol
     @commands.command()
     async def lolpatchnotes(self, ctx):
-        version = self.get_latest_game_version()
+        version = self.get_latest_game_version_lol()
         version = version[:-2].replace('.', '-')
         patch_url = f"https://www.leagueoflegends.com/en-us/news/game-updates/patch-{version}-notes/"
 
@@ -57,10 +67,94 @@ class Lol(commands.Cog):
             color=discord.Color.blue()   
         )
         await ctx.send(embed=embed)
+        
+    
+    #* OSU! COMMANDS
+    
+    
+    #gets users osu stats    
+    @commands.command()
+    async def osustats(self, ctx, playername):
+        profile = self.get_profile_osu(playername)
+        if profile == None:
+            await ctx.send(f"player, {playername} not found")
+        else:
+            try:   
+                player_url = f"https://osu.ppy.sh/users/{profile['userid']}"
+                avatar_url=f"https://a.ppy.sh/{profile['userid']}"
+                
+                embed = discord.Embed(
+                    title=f"{playername}'s stats for Osu!",
+                    url=player_url,
+                    color=discord.Color.blue()
+                )
+                
+                
+                embed.set_thumbnail(url=avatar_url)
+                
+                embed.add_field(name="Level", value=profile['level'], inline=False)
+                embed.add_field(name="Rank", value=f"{profile['rank']}", inline=False)
+                embed.add_field(name="PP", value=profile['pp'], inline=False)
+                embed.add_field(name="Accuracy", value=profile['accuracy'], inline=False)
+                embed.add_field(name="Score", value=f"Ranked Score: {profile['rscore']}\nTotal Score: {profile['tscore']}", inline=False)
+                embed.add_field(name="Playtime", value=f"{profile['playtime']} ({profile['playcount']}Plays)", inline=False)
+
+
+                await ctx.send(embed=embed)
+            except Exception as e:
+                print(f"An error occurred: {e}")
+    
     
 
+    #* VALORANT UTILITY FUNCTIONS
+
+
+
+
+
+    #* OSU! UTILITY FUNCTIONS
+
     
-    #? utility functions
+    def get_profile_osu(self, playername):
+        stats = {}
+        url = "https://osu.ppy.sh/api/get_user"
+        params = {
+            "k": OSU_KEY,
+            "u": playername
+        }
+        response = requests.get(url, params=params)
+        data=response.json()
+        
+        if data == []:
+            return None
+        
+        else:
+            #TODO append these things to the dict and return them
+            stats['userid'] = data[0]['user_id']
+            stats['playcount'] = f"{int(data[0]['playcount']):,}"
+            stats['rscore'] = f"{int(data[0]['ranked_score']):,}"
+            stats['tscore'] = f"{int(data[0]['total_score']):,}"
+            stats['country'] = data[0]['country']
+            stats['rank'] =  f"Global:{int(data[0]['pp_rank']):,}\n{data[0]['country']} Rank:{int(data[0]['pp_country_rank']):,}"
+            stats['level'] = ("%d" % float(data[0]["level"]))
+            stats['pp'] = "{:,}".format(round(float(data[0]['pp_raw'])))
+            stats['accuracy'] = f"{float(data[0]['accuracy']): .2f}"
+            
+            
+            playtime_seconds = int(data[0]['total_seconds_played'])
+            days, remainder = divmod(playtime_seconds, 86400)
+            hours, remainder = divmod(remainder, 3600)
+            minutes, _ = divmod(remainder, 60)
+    
+            stats['playtime'] = f"{days}D {hours}H {minutes}M"
+            
+            return stats
+
+
+
+
+    
+    #* LEAGUE UTILITY FUNCTIONS
     def get_summonerid(self, summonername:str, region: str):
         response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}")
         player_info = response.json()
@@ -71,20 +165,20 @@ class Lol(commands.Cog):
             return summoneriD
     
     
-    def get_pfp(self, summonername:str, region: str):
+    def get_pfp_lol(self, summonername:str, region: str):
         response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}")
         player_info = response.json()
         player_pfp = player_info["profileIconId"]
         return player_pfp
     
     
-    def get_level(self, summonername:str, region: str):
+    def get_level_lol(self, summonername:str, region: str):
         response = requests.get((f"https://{region.lower()}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonername.replace(' ','%20')}?api_key={RIOT_KEY}"))
         player_info = response.json()
         player_level = player_info["summonerLevel"]
         return player_level
     
-    def get_rank(self, summonerid, region):
+    def get_rank_lol(self, summonerid, region):
         ranked_flex_message = "unranked"
         ranked_solo_message = "unranked"
         response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summonerid}?api_key={RIOT_KEY}")
@@ -111,7 +205,7 @@ class Lol(commands.Cog):
     
     
     #gets the latest game version for request links  
-    def get_latest_game_version(self):
+    def get_latest_game_version_lol(self):
         response = requests.get("https://ddragon.leagueoflegends.com/api/versions.json")
         data = response.json()
         
@@ -121,8 +215,8 @@ class Lol(commands.Cog):
     
     
     #returns a dict of all the champions with thier given ids and names together
-    def get_champ_names(self):
-        version = self.get_latest_game_version()
+    def get_champ_names_lol(self):
+        version = self.get_latest_game_version_lol()
         response = requests.get(f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json")
         data = response.json()
         #? idk
@@ -130,7 +224,7 @@ class Lol(commands.Cog):
         return champion_list
         
     
-    def get_mastery(self, summonerid, region):
+    def get_mastery_lol(self, summonerid, region):
         url=f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summonerid}?api_key={RIOT_KEY}"
         headers = {'X-Riot-Token': RIOT_KEY}
         response = requests.get(url, headers=headers)
@@ -145,20 +239,17 @@ class Lol(commands.Cog):
         
         for champion in top_champs:
             champion_id = str(champion['championId'])
-            champion_name = self.get_champ_names().get(champion_id)
+            champion_name = self.get_champ_names_lol().get(champion_id)
             champion_info.append(f"{champion_name} M{champion['championLevel']} {champion['championPoints']} pts\n")
         
         newchampion_info = seperator.join(champion_info)    
         return newchampion_info
     
-    #Ready event    
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print("Lol is ready.")
+    
         
         
         
         
         
 async def setup(client):
-    await client.add_cog(Lol(client))
+    await client.add_cog(Games(client))
