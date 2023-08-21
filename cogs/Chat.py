@@ -12,7 +12,12 @@ class Chat(commands.Cog):
     async def on_ready(self):
         print("Chat is ready.")
         
-        
+       
+    #Hello command
+    @commands.command()
+    async def hello(self, ctx):
+        await ctx.send("Hello kind stranger!")
+            
     #roll a die or multiple     
     @commands.command()
     async def roll(self , ctx, die=1):

@@ -71,7 +71,6 @@ class Games(commands.Cog):
     
     #* OSU! COMMANDS
     
-    
     #gets users osu stats    
     @commands.command()
     async def osustats(self, ctx, playername):
@@ -103,6 +102,8 @@ class Games(commands.Cog):
                 await ctx.send(embed=embed)
             except Exception as e:
                 print(f"An error occurred: {e}")
+    
+    
                 
     #*Valorant commands
     
@@ -124,11 +125,9 @@ class Games(commands.Cog):
             await ctx.send(embed=embed)
             
             
-        
-        
-    
-
+            
     #* VALORANT UTILITY FUNCTIONS
+    
     def get_latest_game_version_val(self, region):
         url=f"https://{region}.api.riotgames.com/val/content/v1/contents"
         headers = {
@@ -147,7 +146,6 @@ class Games(commands.Cog):
 
     #* OSU! UTILITY FUNCTIONS
 
-    
     def get_profile_osu(self, playername):
         stats = {}
         url = "https://osu.ppy.sh/api/get_user"
@@ -162,7 +160,7 @@ class Games(commands.Cog):
             return None
         
         else:
-            #TODO append these things to the dict and return them
+            
             stats['userid'] = data[0]['user_id']
             stats['playcount'] = f"{int(data[0]['playcount']):,}"
             stats['rscore'] = f"{int(data[0]['ranked_score']):,}"
@@ -275,11 +273,7 @@ class Games(commands.Cog):
         newchampion_info = seperator.join(champion_info)    
         return newchampion_info
     
-    
-        
-        
-        
-        
-        
+
+
 async def setup(client):
     await client.add_cog(Games(client))
