@@ -6,8 +6,9 @@ import youtube_dl
 import asyncio
 #? might remove
 from discord import FFmpegPCMAudio
+import re
 
-
+#TODO create a regular expression to test youtube urls and make sure it matches whats needed
 
 
 class Music(commands.Cog):
@@ -21,9 +22,11 @@ class Music(commands.Cog):
     async def on_ready(self):
         print("Music is ready.")
         
-    
+    #play song
     @commands.command()
     async def play(self, ctx, url):
+        
+        
         if not await self.connect_to_voice(ctx):
             return
         
@@ -33,8 +36,7 @@ class Music(commands.Cog):
             await ctx.send(f"Playing {url}")
             self.play_next(ctx)
         
-        
-    
+    #skip to the next song    
     @commands.command()
     async def skip(self, ctx):
         if ctx.voice_client and ctx.voice_client.is_playing():
@@ -50,10 +52,7 @@ class Music(commands.Cog):
         else:
             await ctx.send("nothing is playing")
             
-    @commands.command()
-    async def printqueue(self,ctx):
-        #TODO create command that just prints queue in a list
-        
+    
     async def queue(self,ctx,url):
         if not await self.connect_to_voice(ctx):
             return
@@ -103,7 +102,11 @@ class Music(commands.Cog):
     @commands.command(pass_context = True)
     async def leave(self, ctx):
         if (ctx.voice_client):
+            if self.is_playing:
+                self.is_playing = False
+            
             await ctx.guild.voice_client.disconnect()
+            
         else:
             await ctx.send("I'm not in a voice channel.")
                 
@@ -126,7 +129,8 @@ class Music(commands.Cog):
             await voice_channel.connect()
             
         return True
-         
+     
+    #TODO find actual docs to go more in depth and understand how to do  
     #play next song
     def play_next(self,ctx):
         if self.queue:
@@ -134,7 +138,29 @@ class Music(commands.Cog):
             url = self.queue.pop(0)
             self.is_playing = True
             
+            #?
             #TODO add actual playing for yt and spotify
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+            }
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                if 'entries' in info:
+                    url2 = info['entries'][0]['url']
+                else:
+                    url2 = info['formats'][0]['url']
+
+            voice_client = ctx.voice_client
+            voice_client.play(discord.FFmpegPCMAudio(url2), after=lambda e: self.after_play(ctx))
+
+        else:
+            self.is_playing = False
+            
         
     
     #checks if the queue is empty or not and if not plays the next song    
@@ -147,15 +173,7 @@ class Music(commands.Cog):
         else:
             self.play_next(ctx)
     
-    
-    
-    
 
- 
-            
-       
-    
-       
         
 async def setup(client):
     await client.add_cog(Music(client))

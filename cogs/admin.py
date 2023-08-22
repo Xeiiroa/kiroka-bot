@@ -181,14 +181,6 @@ class Admin(commands.Cog):
         await ctx.send(f"{member.mention}'s nickname has been updated")
         
     
-    
-            
-        
-    
-            
-                    
-        
-    
 
 async def setup(client):
     await client.add_cog(Admin(client))
