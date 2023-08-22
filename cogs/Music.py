@@ -25,17 +25,20 @@ class Music(commands.Cog):
     #play song
     @commands.command()
     async def play(self, ctx, url):
-        
-        
-        if not await self.connect_to_voice(ctx):
-            return
-        
-        self.queue.append(url)
+        if link := re.search(r"^((https?://(?:www\.)?(?:m\.)?youtube\.com))/((?:oembed\?url=https?%3A//(?:www\.)youtube.com/watch\?(?:v%3D)(?P<video_id_1>[\w\-]{10,20})&format=json)|(?:attribution_link\?a=.*watch(?:%3Fv%3D|%3Fv%3D)(?P<video_id_2>[\w\-]{10,20}))(?:%26feature.*))|(https?:)?(\/\/)?((www\.|m\.)?youtube(-nocookie)?\.com\/((watch)?\?(app=desktop&)?(feature=\w*&)?v=|embed\/|v\/|e\/)|youtu\.be\/)(?P<video_id_3>[\w\-]{10,20})", url, re.IGNORECASE):
+            if not await self.connect_to_voice(ctx):
+                return
+            
+            self.queue.append(url)
+            #test print
+            print(self.queue)
 
-        if self.is_playing == False:
-            await ctx.send(f"Playing {url}")
-            self.play_next(ctx)
-        
+            if self.is_playing == False:
+                await ctx.send(f"Playing {url}")
+                self.play_next(ctx)
+        else:
+            await ctx.send("This seems to be a non-valid link. \nI can only take youtube video links")
+    
     #skip to the next song    
     @commands.command()
     async def skip(self, ctx):
