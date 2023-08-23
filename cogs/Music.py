@@ -4,20 +4,27 @@ from tokens import *
 
 import youtube_dl
 import asyncio
-#? might remove
 from discord import FFmpegPCMAudio
 import re
 
-#TODO create a regular expression to test youtube urls and make sure it matches whats needed
 
+class GuildMusicState:
+    def __init__(self):
+        self.queue = []
+        self.is_playing = False
+        self.voice_channel = None
+
+   #todo create error check if bot not in voice do for all commands 
+   #todo also create a parameteer to check if the bot is in voice and if they arent to change statuses(for if user kicks bot)
+    #itd be before the error checks
 
 class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.queue = []
-        self.is_playing = False
+        #? should hold and be a checking point for guild status
+        self.guld_music_states = {}
      
-    #Ready event    
+    #* ready command to make sure it still imports   
     @commands.Cog.listener()
     async def on_ready(self):
         print("Music is ready.")
@@ -25,80 +32,127 @@ class Music(commands.Cog):
     #play song
     @commands.command()
     async def play(self, ctx, url):
-        if link := re.search(r"^((https?://(?:www\.)?(?:m\.)?youtube\.com))/((?:oembed\?url=https?%3A//(?:www\.)youtube.com/watch\?(?:v%3D)(?P<video_id_1>[\w\-]{10,20})&format=json)|(?:attribution_link\?a=.*watch(?:%3Fv%3D|%3Fv%3D)(?P<video_id_2>[\w\-]{10,20}))(?:%26feature.*))|(https?:)?(\/\/)?((www\.|m\.)?youtube(-nocookie)?\.com\/((watch)?\?(app=desktop&)?(feature=\w*&)?v=|embed\/|v\/|e\/)|youtu\.be\/)(?P<video_id_3>[\w\-]{10,20})", url, re.IGNORECASE):
-            if not await self.connect_to_voice(ctx):
-                return
+        # check for if there is a queue already and if there is override it and play desired track
+        if self.queue:
+            audio_url = await self.get_audio_url(url)
+            self.guild_music_states[ctx.guild_id].queue.insert(0, audio_url)
             
-            self.queue.append(url)
-            #test print
-            print(self.queue)
+            await ctx.send(f"Playing {url}")
+            await self.play_next(ctx)
+        elif url:
+            await self.queue(ctx, url)     
+           
+        elif not self.guild_music_states[ctx.guild.id].is_playing:
+            self.guild_music_states[ctx.guild.id].is_playing = True
+            await ctx.send(f"Playing {url}")
+            await self.play_next(ctx) 
+        
 
-            if self.is_playing == False:
-                await ctx.send(f"Playing {url}")
-                self.play_next(ctx)
-        else:
-            await ctx.send("This seems to be a non-valid link. \nI can only take youtube video links")
-    
     #skip to the next song    
     @commands.command()
     async def skip(self, ctx):
-        if ctx.voice_client and ctx.voice_client.is_playing():
-            ctx.voice_client.stop()
-            #! print("skipped")        
+        ...
+        
+        
             
-            if self.queue:
-                self.play_next(ctx)
-            else:
-                self.is_playing=False
-                await ctx.voice_client.disconnect()
-            
+    #adds a new song to the queue
+    @commands.command()
+    async def queue(self,ctx,url):
+        audio_url = await self.get_audio_url(url)
+        
+        if audio_url:
+            self.guild_music_states[ctx.guild_id].queue.append(audio_url)
+            await ctx.send(f"Added {url} to the queue.")
+        
+            if not self.guild_music_states[ctx.guild_id].is_playing:
+                    self.guild_music_states[ctx.guild_id].is_playing = True
+                    await self.play_next(ctx)   
         else:
-            await ctx.send("nothing is playing")
+            await ctx.send("Invald url provided")    
             
     
-    async def queue(self,ctx,url):
-        if not await self.connect_to_voice(ctx):
-            return
+    
+    
+
+    @commands.command()
+    async def printqueue(self,ctx):
+        ...           
+               
+    
+    #* utility functions
+    
+    #check if the author is in a vc and if they are join it, if not send false
+    async def connect_to_voice(self, ctx):
+       ...
+       
+       
+    #make sure its a proper youtube audio and return the import
+    async def get_audio_url(self, url):
+        if link := re.search(r"^((https?://(?:www\.)?(?:m\.)?youtube\.com))/((?:oembed\?url=https?%3A//(?:www\.)youtube.com/watch\?(?:v%3D)(?P<video_id_1>[\w\-]{10,20})&format=json)|(?:attribution_link\?a=.*watch(?:%3Fv%3D|%3Fv%3D)(?P<video_id_2>[\w\-]{10,20}))(?:%26feature.*))|(https?:)?(\/\/)?((www\.|m\.)?youtube(-nocookie)?\.com\/((watch)?\?(app=desktop&)?(feature=\w*&)?v=|embed\/|v\/|e\/)|youtu\.be\/)(?P<video_id_3>[\w\-]{10,20})", url, re.IGNORECASE):
+            ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            return info['formats'][0]['url']
         
-        self.queue.append(url)
-        await ctx.send(f"{url} added to queue")
+    
+    
+
+    """
+    check if the server has a queue going 
+    and if they do play the next song and remove the last song from the list
+    """
+    #play next song
+    def play_next(self,ctx, url):
+        audio_url = self.get_audio_url(url)
         
-        #play next song if nothings playing
-        if self.is_playing == False:
-            await ctx.send(f"playing:{url}")
-            self.play_next(ctx)
+        if audio_url:
+            #!check
+            voice_state = self.guild_music_states[ctx.guild_id]
+            if voice_state.queue:
+                next_url = voice_state.queue.pop(0)
+                voice_client = voice_state.voice_channel.guild.voice_client
+                voice_client.play(discord.FFmpegPCMAudio(next_url), after=lambda e: self.after_play(ctx))
+            else:
+                voice_state.playing = False
         
             
-        
-    #Todo depends on what is appended to the queue if this is kept or scrapped    
-    @commands.command()
-    async def printqueue(self, ctx):
-        ...
+            
+    #checks if the queue is empty or not and if not plays the next song    
+    def after_play(self,ctx):
+        voice_state = self.guild_music_states[ctx.guild_id]
+        voice_client = voice_state.voice_channel.guild.voice_client
+        if voice_client.is_playing():
+            return
+        self.play_next(ctx)
         
         
         
     #*basic interaction events
     
+    #todo add functionality so that when each of these are called they clear the queue
+    
     #autoleave event
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        if member == self.bot.user:
+        if member == self.client.user:
             if after.channel is None:
                 return
             
             if len(after.channel.members) == 1:
                 await after.channel.guild.voice_client.disconnect() 
         
-    #* basic functions
         
     #join vc command    
     @commands.command()
     async def join(self, ctx):
-        if ctx.author.voice:
-            channel = ctx.author.voice.channel
-            await channel.connect()
-        else:
-            await ctx.send("you are not in a voice channel")
+        ...
                 
     
     #leave vc command
@@ -112,69 +166,6 @@ class Music(commands.Cog):
             
         else:
             await ctx.send("I'm not in a voice channel.")
-                
-    
-    
-    
-    #* utility functions
-    
-    
-    #check if the author is in a vc and if they are join it, if not send false
-    async def connect_to_voice(self, ctx):
-        #if author isnt in a vc at all
-        if ctx.author.voice is None or ctx.author.voice.channel is None:
-            await ctx.send("you need to be in a vc to use this command")
-            return False
-        
-        #if bot is not in a vc but author is
-        if ctx.voice_client is None:
-            voice_channel = ctx.author.voice.channel
-            await voice_channel.connect()
-            
-        return True
-     
-    #TODO find actual docs to go more in depth and understand how to do  
-    #play next song
-    def play_next(self,ctx):
-        if self.queue:
-            #? pop(0)
-            url = self.queue.pop(0)
-            self.is_playing = True
-            
-            #?
-            #TODO add actual playing for yt and spotify
-            ydl_opts = {
-                'format': 'bestaudio/best',
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }],
-            }
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                if 'entries' in info:
-                    url2 = info['entries'][0]['url']
-                else:
-                    url2 = info['formats'][0]['url']
-
-            voice_client = ctx.voice_client
-            voice_client.play(discord.FFmpegPCMAudio(url2), after=lambda e: self.after_play(ctx))
-
-        else:
-            self.is_playing = False
-            
-        
-    
-    #checks if the queue is empty or not and if not plays the next song    
-    def after_play(self,ctx):
-        if not self.queue:
-            self.is_playing = False
-            #?
-            asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(), self.bot.loop)
-        
-        else:
-            self.play_next(ctx)
     
 
         
