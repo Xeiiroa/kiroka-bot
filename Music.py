@@ -1,3 +1,29 @@
+
+
+#! update
+"""
+as of this moment to my knowledge and searching i am to believe that there isnt a physical way
+for discord bots to play music using discord.py 
+
+the only bot i have found that could was make in java 
+so ill be scrapping this jumbled set and pursue other features for interraction
+"""
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import discord
 from discord.ext import commands
 from tokens import *
@@ -10,14 +36,15 @@ import re
 
 class GuildMusicState:
     def __init__(self):
-        self.queue = []
+        self.song_queue = []
         self.is_playing = False
         self.voice_channel = None
-
+    #todo impliment autoplay
    #todo create error check if bot not in voice do for all commands 
    #todo also create a parameteer to check if the bot is in voice and if they arent to change statuses(for if user kicks bot)
     #itd be before the error checks
-
+    #todo IMPORTANT
+    #! when you are out of trackss automatically set it so that it turns off isplaying for that guild
 class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -29,29 +56,40 @@ class Music(commands.Cog):
     async def on_ready(self):
         print("Music is ready.")
         
+        
+        #!whhy did i [put utrl in play next and how can i do it with safe cehck foir with adn without url]
     #play song
     @commands.command()
     async def play(self, ctx, url):
+        #todo if the user is in a vc join it else print error
+        
+        audio_url = await self.get_audio_url(url)
         # check for if there is a queue already and if there is override it and play desired track
-        if self.queue:
-            audio_url = await self.get_audio_url(url)
+        if self.song_queue:
             self.guild_music_states[ctx.guild_id].queue.insert(0, audio_url)
-            
             await ctx.send(f"Playing {url}")
             await self.play_next(ctx)
-        elif url:
-            await self.queue(ctx, url)     
-           
-        elif not self.guild_music_states[ctx.guild.id].is_playing:
+        
+            
+        elif not self.guild_music_states[ctx.guild.id].is_playing and audio_url:
             self.guild_music_states[ctx.guild.id].is_playing = True
             await ctx.send(f"Playing {url}")
             await self.play_next(ctx) 
+        
+        
+        #! assuming there is no queue playing should be false
+        elif audio_url:
+            await self.queue(ctx, url)     
+           
+        
         
 
     #skip to the next song    
     @commands.command()
     async def skip(self, ctx):
-        ...
+        if ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
+            self.play_next(ctx)
         
         
             
@@ -130,8 +168,8 @@ class Music(commands.Cog):
         voice_client = voice_state.voice_channel.guild.voice_client
         if voice_client.is_playing():
             return
-        self.play_next(ctx)
-        
+        if voice_state.song_queue:
+            self.play_next(ctx)
         
         
     #*basic interaction events
