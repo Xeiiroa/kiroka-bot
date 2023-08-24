@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from tokens import *
 import random
+import datetime
 
 class Chat(commands.Cog):
     def __init__(self, client):
@@ -12,7 +13,15 @@ class Chat(commands.Cog):
     async def on_ready(self):
         print("Chat is ready.")
         
-       
+    #bot join message
+    @commands.Cog.listener()
+    async def on_guild_join(guild):
+        welcome_channel = guild.system_channel
+        
+        if welcome_channel is not None:
+            await welcome_channel.send(f"Thanks for having me")
+           
+    
     #Hello command
     @commands.command()
     async def hello(self, ctx):
