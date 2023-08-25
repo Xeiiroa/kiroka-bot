@@ -2,11 +2,17 @@ import discord
 from discord.ext import commands
 from tokens import *
 import random
-import datetime
+from pixivapi import Client
+
+
+
+
 
 class Chat(commands.Cog):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
+        self.client = Client()
+        self.client.login(PIXIV_USERNAME, PIXIV_PASSWORD)
      
     #Ready event    
     @commands.Cog.listener()
@@ -62,6 +68,9 @@ class Chat(commands.Cog):
         else:
             await ctx.send(f"{choiceb} wins!")
     
+    @commands.commad()
+    async def pixiv(self, ctx, keyword):
+        ...
     
             
         
@@ -73,5 +82,5 @@ class Chat(commands.Cog):
     
         
         
-async def setup(client):
-    await client.add_cog(Chat(client))
+async def setup(bot):
+    await bot.add_cog(Chat(bot))

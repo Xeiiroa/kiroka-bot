@@ -20,6 +20,8 @@ class Admin(commands.Cog):
     #error check for all commands that require permissions
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
+        print(f"Error type: {type(error).__name__}")
+        print(f"Command name: {ctx.command}")
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("you don't have the proper permissions to use this command")
         
@@ -65,105 +67,85 @@ class Admin(commands.Cog):
       
     #text mute
     @commands.command()
-    @commands.has_permissions(mute_members=True)
-    async def txtmute(ctx, member: discord.Member):
-        txtmuted_role = discord.utils.get(ctx.guild.roles, name='TextMuted')
-        
-        #checking if theres a textmuted rule and if there isnt making one
-        if not txtmuted_role:
-            txtmuted_role = await ctx.guild.create_role(name="TextMuted")
-            
-        #checking if the user has the textmuted role and sending an error message if they do    
-        if txtmuted_role in member.roles:
-            await ctx.send(f"{member.mention} is already text muted")
-        else:
+    async def mutetxt(self, ctx, member: discord.Member):
+        if ctx.author.guild_permissions.mute_members:
             for channel in ctx.guild.text_channels:
-                member_permission = channel.permission_for(member)
-                
-                if not member_permission.send_messages:
-                    continue
-                
-                member_permission.update(send_messages=False)
-                
-                #applying the permission change
-                await channel.set_permissions(member, overwrite=member_permission)
+                await channel.set_permissions(member, send_messages=False)
+            await ctx.send(f"{member.mention} has been text muted")
+        else:
+            await ctx.send("you don't have the proper permissions to use this command")
             
-            await member.add_roles(txtmuted_role)
-            await ctx.send(f'{member.mention} has been text muted.')
-                
+            
+        
+        
             
     #text unmute command        
     @commands.command()
-    @commands.has_permissions(mute_members=True)
-    async def unmutetxt(ctx, member: discord.Member):
-        txtmuted_role = discord.utils.get(ctx.guild.roles, name='TextMuted')
-        
-        if txtmuted_role in member.roles:
+    async def unmutetxt(self, ctx, member: discord.Member):
+        if ctx.author.guild_permissions.mute_members:
             for channel in ctx.guild.text_channels:
-                
-                member_permission = channel.permissions_for(member)
-                
-                if member_permission.send_messages:
-                    continue
-                
-                member_permission.update(send_messages=True)
-                
-                await channel.set_permission(member, overwrite=member_permission)
-            
-            await member.remove_roles(txtmuted_role)   
-            await ctx.send(f"{member.mention} is now able to send messages again")
-            
+                await channel.set_permissions(member, send_messages=True)
+            await ctx.send(f"{member.mention} has been unmuted")
         else:
-            await ctx.send(f"{member.mention} isn't muted")
+            await ctx.send("you don't have the proper permissions to use this command")
+            
+        
       
             
     #voice mute command         
     @commands.command()
-    @commands.has_permissions(mute_members=True)
     async def mute(self, ctx, member: discord.Member):
-        if member.voice:
-            if member.voice.mute:
-                await ctx.send("they're is already muted")
+        if ctx.author.guild_permissions.mute_members:
+            if member.voice:
+                if member.voice.mute:
+                    await ctx.send("they're is already muted")
+                else:
+                    await member.edit(mute=True)
+                    await ctx.send(f"{member.mention} has been voice muted.")
             else:
-                await member.edit(mute=True)
-                await ctx.send(f"{member.mention} has been voice muted.")
+                await ctx.send(f'{member.mention} is not in a voice channel.')
         else:
-            await ctx.send(f'{member.mention} is not in a voice channel.')
-            
+            await ctx.send("you don't have the proper permissions to use this command")
+                    
             
     #unmute command
     #jist checking the user is mute and if they are unmuting them        
     @commands.command()
-    @commands.has_permissions(mute_members=True)
     async def unmute(self, ctx, member: discord.Member):
-        if member.voice.mute:
-            await member.edit(mute=False)
-            await ctx.send(f"{member.mention} has been unmuted.")
+        if ctx.author.guild_permissions.mute_members:
+            if member.voice.mute:
+                await member.edit(mute=False)
+                await ctx.send(f"{member.mention} has been unmuted.")
+            else:
+                await ctx.send(f"{member.mention} isnt muted")
         else:
-            await ctx.send(f"{member.mention} isnt muted")
-           
-                        
-    @commands.command()
-    @commands.has_permissions(deafen_members=True)
-    async def deafen(self,ctx, member: discord.Member):
-        if member.voice:
-            if member.voice.deaf:
-                await ctx.send(f"{member.mention} is already deafened")
-            else: 
-                await member.edit(deafen=True)
-                await ctx.send(f"{member.mention} has been deafened.")
-        else:
-            await ctx.send(f"{member.mention} is not in a voice channel")
+            await ctx.send("you don't have the proper permissions to use this command")
             
+    #deafen                    
+    @commands.command()
+    async def deafen(self,ctx, member: discord.Member):
+        if ctx.author.guild_permissions.deafen_members:
+            if member.voice:
+                if member.voice.deaf:
+                    await ctx.send(f"{member.mention} is already deafened")
+                else: 
+                    await member.edit(deafen=True)
+                    await ctx.send(f"{member.mention} has been deafened.")
+            else:
+                await ctx.send(f"{member.mention} is not in a voice channel")
+        else:
+            await ctx.send("you don't have the proper permissions to use this command")    
       
     @commands.command()
-    @commands.has_permissions(deafen_members=True)
     async def undeafen(self, ctx, member: discord.Member):
-        if member.voice.deaf:
-            await member.edit(deafen=False)
-            await ctx.send(f"{member.mention} has been undeafened.") 
+        if ctx.author.guild_permissions.deafen_members:
+            if member.voice.deaf:
+                await member.edit(deafen=False)
+                await ctx.send(f"{member.mention} has been undeafened.") 
+            else:
+                await ctx.send(f"they arent deafened")
         else:
-            await ctx.send(f"they arent deafened")
+            await ctx.send("you don't have the proper permissions to use this command")
               
         
     #purge command
