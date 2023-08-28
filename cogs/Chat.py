@@ -69,35 +69,7 @@ class Chat(commands.Cog):
         else:
             await ctx.send(f"{choiceb} wins!")
     
-    #TODO check if this actually works :)
-    @commands.commad()
-    async def pixiv(self, ctx, keyword):
-        headers = {
-            #not sure if i need to add authorization yet due to login
-        }
-        
-        response = requests.get(f'https://public-api.secure.pixiv.net/v1/search/works.json?q={keyword}&per_page=100')
-        data = response.json()
 
-        if 'response' in data:
-            illustrations = data['response']
-            if illustrations:
-                random_illustration = random.choice(illustrations)
-                image_url = random_illustration['image_urls']['large']
-                await ctx.send(image_url)
-            else:
-                await ctx.send('No images found for the keyword.')
-        else:
-            await ctx.send('Error fetching data from Pixiv.')
-            
-        
-    
-        
-        
-    
-                
-    
-        
         
 async def setup(bot):
     await bot.add_cog(Chat(bot))
