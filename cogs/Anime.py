@@ -7,7 +7,7 @@ class Anime(commands.Cog):
     def __init__(self, client):
         self.client = client
      
-    @commands.command()
+    @commands.hybrid_command(name="animeinfo", description="Gives the information of a given anime", with_app_command=True)
     async def animeinfo(self, ctx, *, anime_title):
         info = self.get_info(anime_title)
         

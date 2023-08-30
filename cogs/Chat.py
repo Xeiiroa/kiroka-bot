@@ -10,10 +10,10 @@ from pixivapi import Client
 
 
 class Chat(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.client = Client()
-        self.client.login(PIXIV_USERNAME, PIXIV_PASSWORD)
+    def __init__(self, client):
+        
+        self.client = client
+        #self.client.login(PIXIV_USERNAME, PIXIV_PASSWORD)
      
     #Ready event    
     @commands.Cog.listener()
@@ -71,5 +71,5 @@ class Chat(commands.Cog):
     
 
         
-async def setup(bot):
-    await bot.add_cog(Chat(bot))
+async def setup(client):
+    await client.add_cog(Chat(client))
