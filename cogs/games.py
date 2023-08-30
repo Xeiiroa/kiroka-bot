@@ -20,7 +20,7 @@ class Games(commands.Cog):
     
     
     #returns the users league stats  
-    @commands.command() 
+    @commands.hybrid_command(name="lolstats", description="gives basic info of a given league player") 
     async def lolstats(self, ctx, summonername:str, region = "na1"):
         regions = ["br1","eun1","euw1","jp1","kr","la1","la2","na1","oc1","ph2","ru","sg2","th2","tr1","tw2","vn2"]
         if region.lower() not in regions:
@@ -54,7 +54,7 @@ class Games(commands.Cog):
        
     
     #returns the most recent patch notes for lol
-    @commands.command()
+    @commands.hybrid_command(name="lolpatchnotes", description="Gives the url to league of legends most recent patch")
     async def lolpatchnotes(self, ctx):
         version = self.get_latest_game_version_lol()
         version = version[:-2].replace('.', '-')
@@ -72,7 +72,7 @@ class Games(commands.Cog):
     #* OSU! COMMANDS
     
     #gets users osu stats    
-    @commands.command()
+    @commands.hybrid_command(name="osustats", description="Gives the stats of an osu player")
     async def osustats(self, ctx, playername):
         profile = self.get_profile_osu(playername)
         if profile == None:
@@ -107,7 +107,7 @@ class Games(commands.Cog):
                 
     #*Valorant commands
     
-    @commands.command()
+    @commands.hybrid_command(name="valorantpatchnotes", description="Gives the url to Valorant's most recent patch")
     async def valpatchnotes(self, ctx, region="na"):
         regions = ["ap","br","eu","kr","latam","na","esports"]
         if region.lower() not in regions:
@@ -207,6 +207,17 @@ class Games(commands.Cog):
         return player_level
     
     def get_rank_lol(self, summonerid, region):
+        ranked_emojis={"IRON": "<:Iron:1146489440332685382>",
+                       "BRONZE": "<:Bronze:1146489123109093406>", 
+                       "SILVER": "<:Silver:1146489422905356368>",
+                       "GOLD": "<:Gold:1146489457378328696>",
+                       "PLATINUM": "<:Platinum:1146489471399891004>",
+                       "EMERALD": "<:Emerald:1146492847143518379>",
+                       "DIAMOND": "<:Diamond:1146489492732133417>",
+                       "MASTER": "<:Master:1146489508414640128>",
+                       "GRANDMASTER": "<:Master:1146489520334831716>",
+                       "CHALLENGER": "<:Challenger:1146489530644451409>"}
+        
         ranked_flex_message = "unranked"
         ranked_solo_message = "unranked"
         response = requests.get(f"https://{region.lower()}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summonerid}?api_key={RIOT_KEY}")
@@ -218,7 +229,9 @@ class Games(commands.Cog):
                 winrate =("%d" % winrate)
                 winrate = f"{winrate}%"
                 
-                ranked_solo_message = f"{stats['tier']} {stats['rank']} {stats['leaguePoints']}LP \n{stats['wins']}W {stats['losses']}L {winrate}"
+                
+                
+                ranked_solo_message = f"{ranked_emojis[stats['tier']]}{stats['tier']} {stats['rank']}{ranked_emojis[stats['tier']]}\n {stats['leaguePoints']}LP \n{stats['wins']}W {stats['losses']}L {winrate}"
                 
             
             if "RANKED_FLEX_SR" in stats.values():
@@ -227,7 +240,7 @@ class Games(commands.Cog):
                 winrate =("%d" % winrate)
                 winrate = f"{winrate}%"
                 
-                ranked_solo_message = f"{stats['tier']} {stats['rank']} {stats['leaguePoints']}LP \n{stats['wins']}W {stats['losses']}L {winrate}"
+                ranked_flex_message = f"{ranked_emojis[stats['tier']]}{stats['tier']} {stats['rank']}{ranked_emojis[stats['tier']]}\n {stats['leaguePoints']}LP \n{stats['wins']}W {stats['losses']}L {winrate}"
                 
         return ranked_solo_message, ranked_flex_message
     
@@ -253,6 +266,11 @@ class Games(commands.Cog):
         
     
     def get_mastery_lol(self, summonerid, region):
+        mastery_emojis={4: "<:M4:1146491370677227591>",
+                        5: "<:M5:1146491359595872296>",
+                        6: "<:M6:1146491139860471881>",
+                        7: "<:M7:1146491152770543686>"}
+        
         url=f"https://{region.lower()}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/{summonerid}?api_key={RIOT_KEY}"
         headers = {'X-Riot-Token': RIOT_KEY}
         response = requests.get(url, headers=headers)
@@ -268,7 +286,11 @@ class Games(commands.Cog):
         for champion in top_champs:
             champion_id = str(champion['championId'])
             champion_name = self.get_champ_names_lol().get(champion_id)
-            champion_info.append(f"{champion_name} M{champion['championLevel']} {champion['championPoints']} pts\n")
+        
+            if champion["championLevel"] < 4:
+                champion_info.append(f"{champion_name} M{champion['championLevel']} {champion['championPoints']}pts\n")
+            else:
+                champion_info.append(f"{mastery_emojis[champion['championLevel']]} {champion_name} {champion['championPoints']}pts\n")
         
         newchampion_info = seperator.join(champion_info)    
         return newchampion_info

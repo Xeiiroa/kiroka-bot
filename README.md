@@ -12,14 +12,12 @@ Twitch notifications, Anime and Manga updates and information, Productivity, Mus
     -Message Moderation
 
 # Productivity
-    - Study sessions with controllable limits to avoid burnout
-    - Reminders
-    - Task lists
+    - Study sessions with controllable breaks
 
 # Anime & Manga
     - Anime Summaries
     - Release reminders
-    - Leaderboards of top shows in the current season
+    
 
 # Game stats and more for Titles
     - League of Legends
