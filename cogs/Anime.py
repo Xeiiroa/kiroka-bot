@@ -4,8 +4,8 @@ from tokens import *
 import requests, json
 
 class Anime(commands.Cog):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
      
     @commands.hybrid_command(name="animeinfo", description="Gives the information of a given anime", with_app_command=True)
     async def animeinfo(self, ctx, *, anime_title):
@@ -108,5 +108,5 @@ class Anime(commands.Cog):
             return info
         
         
-async def setup(client):
-    await client.add_cog(Anime(client))
+async def setup(bot):
+    await bot.add_cog(Anime(bot))

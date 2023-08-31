@@ -10,9 +10,9 @@ from pixivapi import Client
 
 
 class Chat(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, bot):
         
-        self.client = client
+        self.bot = bot
         #self.client.login(PIXIV_USERNAME, PIXIV_PASSWORD)
      
     #Ready event    
@@ -32,7 +32,6 @@ class Chat(commands.Cog):
     #Hello command
     @commands.hybrid_command(name="hello", description="Say hi to Oyasu")
     async def hello(self, ctx):
-        await ctx.send("<:Silver:1146489422905356368>")
         await ctx.send("Hello kind stranger!")
         
             
@@ -82,5 +81,5 @@ class Chat(commands.Cog):
     
 
         
-async def setup(client):
-    await client.add_cog(Chat(client))
+async def setup(bot):
+    await bot.add_cog(Chat(bot))

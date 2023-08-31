@@ -8,14 +8,14 @@ from discord.utils import get
 
 
 class Admin(commands.Cog):
-    def __init__ (self, client):
-        self.client = client
+    def __init__ (self, bot):
+        self.bot = bot
         
     #Ready event    
     @commands.Cog.listener()
     async def on_ready(self):
         print("Admin is ready.")
-    
+        
     
     #error check for all commands that require permissions
     @commands.Cog.listener()
@@ -26,7 +26,7 @@ class Admin(commands.Cog):
             await ctx.send("you don't have the proper permissions to use this command")
         
     #kick command
-    @commands.command()
+    @commands.command(name="kick", description="Remove a user from the server")
     @has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason = None):
         await member.kick(reason=reason)
@@ -34,7 +34,7 @@ class Admin(commands.Cog):
     
     
     #ban command        
-    @commands.command()
+    @commands.command(name="ban", description="Remove a user from the server")
     @has_permissions(ban_members=True)
     async def ban(self, ctx, member: discord.Member, *, reason = None):
         await member.ban(reason=reason)
@@ -42,7 +42,7 @@ class Admin(commands.Cog):
         
     
     #addrole command
-    @commands.command(pass_context = True)
+    @commands.command(name="addrole", description="Give the mentioned user a role", pass_context = True)
     @commands.has_permissions(manage_roles = True)   
     async def addrole(self, ctx, user: discord.Member, *, role: discord.Role):
     
@@ -54,7 +54,7 @@ class Admin(commands.Cog):
     
     
     #remove role command
-    @commands.command(pass_context = True)
+    @commands.command(name="removerole", description="Remove a role from the mentioned user", pass_context = True)
     @commands.has_permissions(manage_roles = True)   
     async def removerole(self, ctx, user: discord.Member, *, role: discord.Role):
     
@@ -66,7 +66,7 @@ class Admin(commands.Cog):
             
       
     #text mute
-    @commands.command()
+    @commands.command(name="mutetxt", description="Take a users ability to send messages away")
     async def mutetxt(self, ctx, member: discord.Member):
         if ctx.author.guild_permissions.mute_members:
             for channel in ctx.guild.text_channels:
@@ -74,13 +74,10 @@ class Admin(commands.Cog):
             await ctx.send(f"{member.mention} has been text muted")
         else:
             await ctx.send("you don't have the proper permissions to use this command")
-            
-            
-        
-        
+             
             
     #text unmute command        
-    @commands.command()
+    @commands.command(name="unmutetxt", description="Give the mentioned user ability to send messages")
     async def unmutetxt(self, ctx, member: discord.Member):
         if ctx.author.guild_permissions.mute_members:
             for channel in ctx.guild.text_channels:
@@ -93,7 +90,7 @@ class Admin(commands.Cog):
       
             
     #voice mute command         
-    @commands.command()
+    @commands.command(name="mute", description="Mutes mentioned user if in a voice channel")
     async def mute(self, ctx, member: discord.Member):
         if ctx.author.guild_permissions.mute_members:
             if member.voice:
@@ -110,7 +107,7 @@ class Admin(commands.Cog):
             
     #unmute command
     #jist checking the user is mute and if they are unmuting them        
-    @commands.command()
+    @commands.command(name="unmute", description="Unmutes mentioned user")
     async def unmute(self, ctx, member: discord.Member):
         if ctx.author.guild_permissions.mute_members:
             if member.voice.mute:
@@ -122,7 +119,7 @@ class Admin(commands.Cog):
             await ctx.send("you don't have the proper permissions to use this command")
             
     #deafen                    
-    @commands.command()
+    @commands.command(name="deafen", description="takes mentioned users ability to hear if in a voice channel")
     async def deafen(self,ctx, member: discord.Member):
         if ctx.author.guild_permissions.deafen_members:
             if member.voice:
@@ -136,7 +133,7 @@ class Admin(commands.Cog):
         else:
             await ctx.send("you don't have the proper permissions to use this command")    
       
-    @commands.command()
+    @commands.command(name="undeafen", description="Undeafens mentioned user")
     async def undeafen(self, ctx, member: discord.Member):
         if ctx.author.guild_permissions.deafen_members:
             if member.voice.deaf:
@@ -149,14 +146,14 @@ class Admin(commands.Cog):
               
         
     #purge command
-    @commands.command()
+    @commands.hybrid_command(name="purge", description="deletes messages in voice channel when given a number")
     @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, count: int):
         await ctx.channel.purge(limit=count)
         await ctx.send(f"{count} message(s) deleted")
         
-        
-    @commands.command()
+    #rename command    
+    @commands.command(name="rename", description="Changes mentioned users nickname")
     @commands.has_permissions(manage_nicknames=True)
     async def rename(self, ctx, member: discord.Member, *, new_name: str):
         await member.edit(nick=new_name)
@@ -164,6 +161,6 @@ class Admin(commands.Cog):
         
     
 
-async def setup(client):
-    await client.add_cog(Admin(client))
+async def setup(bot):
+    await bot.add_cog(Admin(bot))
     

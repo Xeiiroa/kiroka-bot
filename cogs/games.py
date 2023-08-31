@@ -8,8 +8,8 @@ import json
 import datetime
 
 class Games(commands.Cog):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
         
     #Ready event    
     @commands.Cog.listener()
@@ -20,7 +20,7 @@ class Games(commands.Cog):
     
     
     #returns the users league stats  
-    @commands.hybrid_command(name="lolstats", description="gives basic info of a given league player") 
+    @commands.hybrid_command(name="lolstats", description="gives basic info of a given league player")
     async def lolstats(self, ctx, summonername:str, region = "na1"):
         regions = ["br1","eun1","euw1","jp1","kr","la1","la2","na1","oc1","ph2","ru","sg2","th2","tr1","tw2","vn2"]
         if region.lower() not in regions:
@@ -297,5 +297,5 @@ class Games(commands.Cog):
     
 
 
-async def setup(client):
-    await client.add_cog(Games(client))
+async def setup(bot):
+    await bot.add_cog(Games(bot))

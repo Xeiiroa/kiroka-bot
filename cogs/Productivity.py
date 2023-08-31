@@ -6,6 +6,28 @@ from tokens import *
 import datetime
 from dataclasses import dataclass
 
+"""
+session start(task, max time, maxtime units: default=Minutes, break time)
+params
+task: self explanatory
+break time(sends a reminder to take a break at intervals of that time)
+maxtime: how long a session for a task will last until it auto ends
+maxtime units(the time you want the session in hours or minutes)
+___
+
+
+async def send_break_message(time)
+goal
+once a a time interval is crossed activate this command and send a message
+reminding the author to take a break 
+
+session_end()
+ends session   
+    
+    
+    
+"""
+
 
 class Productivity(commands.Cog):
     def __init__(self, client):
