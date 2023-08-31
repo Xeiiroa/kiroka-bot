@@ -2,6 +2,8 @@
 import discord
 from discord.ext import commands
 from tokens import *
+from discord.ui import Select
+from typing import Literal
 
 import requests
 import json
@@ -21,7 +23,7 @@ class Games(commands.Cog):
     
     #returns the users league stats  
     @commands.hybrid_command(name="lolstats", description="gives basic info of a given league player")
-    async def lolstats(self, ctx, summonername:str, region = "na1"):
+    async def lolstats(self, ctx, summonername:str, region: Literal["br1","eun1","euw1","jp1","kr","la1","la2","na1","oc1","ph2","ru","sg2","th2","tr1","tw2","vn2"]):
         regions = ["br1","eun1","euw1","jp1","kr","la1","la2","na1","oc1","ph2","ru","sg2","th2","tr1","tw2","vn2"]
         if region.lower() not in regions:
             await ctx.send("non-valid region provided" + "\n" + "list of valid regions:" + "\n" +

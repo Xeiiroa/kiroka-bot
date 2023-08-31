@@ -24,6 +24,9 @@ class Oyasu(commands.Bot):
     
     async def setup_hook(self) -> None:
         await self.load()
+        #!remove after testing
+        await self.tree.sync()
+        
         
         
         
