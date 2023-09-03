@@ -17,7 +17,7 @@ from tokens import *
 
 class Oyasu(commands.Bot):
     def __init__(self, intents: discord.Intents=discord.Intents.all(), activity=discord.Game(name="リグマ")):
-        super().__init__(command_prefix="o.", intents=intents, activity=activity)
+        super().__init__(command_prefix="!", intents=intents, activity=activity, help_command=None)
         
         #self.change_presence(status=discord.Status.online, activity=discord.Game(name="リグマ"))
     
@@ -25,7 +25,7 @@ class Oyasu(commands.Bot):
     async def setup_hook(self) -> None:
         await self.load()
         #!remove after testing
-        await self.tree.sync()
+        #await self.tree.sync()
         
         
         
@@ -39,7 +39,7 @@ class Oyasu(commands.Bot):
 
 async def main():
     async with Oyasu() as bot:
-        bot.remove_command('help')
+        #bot.remove_command('help')
         await bot.start(BOT_TOKEN)
 
 if __name__ == "__main__":

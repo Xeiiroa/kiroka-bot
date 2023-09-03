@@ -16,6 +16,10 @@ class Admin(commands.Cog):
     async def on_ready(self):
         print("Admin is ready.")
         
+    @commands.command()
+    async def sssync(self,ctx):
+        await self.tree.sync()
+        
     
     #error check for all commands that require permissions
     @commands.Cog.listener()
