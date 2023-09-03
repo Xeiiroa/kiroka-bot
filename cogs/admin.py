@@ -15,7 +15,8 @@ class Admin(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print("Admin is ready.")
-        
+    
+    @commands.is_owner()    
     @commands.command()
     async def sssync(self,ctx):
         await self.tree.sync()
@@ -68,7 +69,9 @@ class Admin(commands.Cog):
             await user.remove_roles(role)
             await ctx.send(f"{user.mention} no longer has the role {role}.")
             
-      
+    
+    #todo 
+    #! Create aliases for mutetxt and unmute text  
     #text mute
     @commands.command(name="mutetxt", description="Take a users ability to send messages away")
     async def mutetxt(self, ctx, member: discord.Member):
