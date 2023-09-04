@@ -4,23 +4,58 @@ from tokens import *
 from discord import Member
 from discord.ext.commands import has_permissions, MissingPermissions
 from discord.utils import get
-
-
+from typing import Any, Literal, Optional, Type
+from discord.ext import commands
 
 class Admin(commands.Cog):
     def __init__ (self, bot):
         self.bot = bot
+        
+    @property
+    def cog_name(self):
+        return "admin"
+    
         
     #Ready event    
     @commands.Cog.listener()
     async def on_ready(self):
         print("Admin is ready.")
     
-    @commands.is_owner()    
-    @commands.command()
-    async def sssync(self,ctx):
-        await self.tree.sync()
-        
+    #sync command
+    @commands.command(hidden=True)
+    @commands.guild_only()
+    @commands.is_owner()
+    async def sync(
+    ctx, guilds, spec: Optional[Literal["~", "*", "^"]] = None) -> None:
+        if not guilds:
+            if spec == "~":
+                synced = await ctx.client.tree.sync(guild=ctx.guild)
+            elif spec == "*":
+                ctx.client.tree.copy_global_to(guild=ctx.guild)
+                synced = await ctx.client.tree.sync(guild=ctx.guild)
+            elif spec == "^":
+                ctx.client.tree.clear_commands(guild=ctx.guild)
+                await ctx.client.tree.sync(guild=ctx.guild)
+                synced = []
+            else:
+                synced = await ctx.client.tree.sync()
+            
+            await ctx.send(
+                f"Synced {len(synced)} commands {'globally' if spec is None else 'to the current guild.'}"
+            )
+            return
+
+        ret = 0
+        for guild in guilds:
+            try:
+                await ctx.bot.tree.sync(guild=guild)
+            except discord.HTTPException:
+                pass
+            else:
+                ret += 1
+
+        await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
+    
     
     #error check for all commands that require permissions
     @commands.Cog.listener()

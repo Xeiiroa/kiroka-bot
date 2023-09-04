@@ -41,6 +41,8 @@ class MyHelp(commands.MinimalHelpCommand):
                 )
             #check for parameters
             parameters= command.clean_params
+            print(parameters)
+            
             if parameters:
                 parameter_names = list(parameters.keys())
                 arguments = '\n'.join(parameter_names)
@@ -67,7 +69,9 @@ class MyHelp(commands.MinimalHelpCommand):
         
         Command_list = []
         for commands in cog_commands:
-            holder = f"`{commands.name}`-{commands.description}"
+            holder = f"`{commands.name}`"
+            if commands.description:
+                holder += f"-{commands.description}"
             Command_list.append(holder)
         
             
@@ -84,16 +88,22 @@ class MyHelp(commands.MinimalHelpCommand):
     #TODO
     #This is the full help command, create a screen that Displays the names of each cog that isnt hidden and how many commands there are
     async def send_bot_help(self, mapping):
-        embed = discord.Embed(title="Command List")
+        embed = discord.Embed(title="Command Group List")
         for cog, commands in mapping.items():
-            filtered = await self.filter_commands(commands, sort=True)
-            command_signatures = [self.get_command_signature(c) for c in filtered]
-            if command_signatures:
+            visible_commands= [command for command in commands if not command.hidden]
+            command_count = len(visible_commands)
+            
+            if command_count > 0:
                 cog_name = getattr(cog, "qualified_name", "No Category")
-                embed.add_field(name=cog_name, value="\n".join(command_signatures), inline=False)
+                if cog_name == "No Category" or cog_name == "OyasuHelp":
+                    pass
+                else:
+                    embed.add_field(name=cog_name , value=f"{command_count} commands\n `!help {cog_name}`", inline=False)
+                
         
         channel = self.get_destination()
         await channel.send(embed=embed)
+        
         
 #Help command
 #todo
@@ -119,4 +129,5 @@ class OyasuHelp(commands.Cog):
     
 
 async def setup(bot):
+    #commands.HiddenAttribute()(OyasuHelp)
     await bot.add_cog(OyasuHelp(bot))

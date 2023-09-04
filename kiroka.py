@@ -20,6 +20,7 @@ class Oyasu(commands.Bot):
         super().__init__(command_prefix="!", intents=intents, activity=activity, help_command=None)
         
         #self.change_presence(status=discord.Status.online, activity=discord.Game(name="リグマ"))
+        
     
     
     async def setup_hook(self) -> None:
