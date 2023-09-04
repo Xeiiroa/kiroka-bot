@@ -105,10 +105,12 @@ class Admin(commands.Cog):
             await ctx.send(f"{user.mention} no longer has the role {role}.")
             
     
-    #todo 
-    #! Create aliases for mutetxt and unmute text  
+    
     #text mute
-    @commands.command(name="mutetxt", description="Take a users ability to send messages away")
+    @commands.command(
+        name="mutetxt", 
+        description="Take a users ability to send messages away", 
+        aliases=["txtmute", "textmute"])
     async def mutetxt(self, ctx, member: discord.Member):
         if ctx.author.guild_permissions.mute_members:
             for channel in ctx.guild.text_channels:
@@ -119,7 +121,10 @@ class Admin(commands.Cog):
              
             
     #text unmute command        
-    @commands.command(name="unmutetxt", description="Give the mentioned user ability to send messages")
+    @commands.command(
+        name="unmutetxt", 
+        description="Give the mentioned user ability to send messages",
+        aliases=["txtunmute, textunmute"])
     async def unmutetxt(self, ctx, member: discord.Member):
         if ctx.author.guild_permissions.mute_members:
             for channel in ctx.guild.text_channels:

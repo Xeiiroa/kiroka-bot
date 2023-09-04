@@ -7,22 +7,13 @@ from discord.ext.commands.cog import Cog
 from discord.ext.commands.core import Command, Group
 from tokens import *
 from discord.ui import View, Select
-#create help passing
-#create help command
-#hiding owner commands or owner cog in general and cogs like help
-#add cooldown to avoid spam
-
-#on help command
-#Show the categories and how many commands there are
-#when a group or command is called return the infor for it
-#check if command.hidden is true or false
 
 
 class MyHelp(commands.MinimalHelpCommand):
     def __init__(self):
         attributes = {
-            # Todo increase time to 1 in 15 seconds when
-        'cooldown': commands.CooldownMapping.from_cooldown(2, 5.0, commands.BucketType.user)
+            
+        'cooldown': commands.CooldownMapping.from_cooldown(1, 15.0, commands.BucketType.user)
         }
         super().__init__(command_attrs=attributes)
         
@@ -32,8 +23,9 @@ class MyHelp(commands.MinimalHelpCommand):
         channel = self.get_destination()
         await channel.send(embed=embed)
         
-    #*bad argument check if they sent wrong name
-        
+    
+    
+    #help command when a command is added   
     async def send_command_help(self, command):
             embed= discord.Embed(
                 title=command.name,
@@ -41,7 +33,6 @@ class MyHelp(commands.MinimalHelpCommand):
                 )
             #check for parameters
             parameters= command.clean_params
-            print(parameters)
             
             if parameters:
                 parameter_names = list(parameters.keys())
@@ -56,9 +47,8 @@ class MyHelp(commands.MinimalHelpCommand):
             channel = self.get_destination()
             await channel.send(embed=embed)
     
-    #TODO 
-    #since i have one group per cog i can just call the other one for this
-    #or just copy paste the code from one to another depending on if it looks differfent        
+    
+    #help command when a cog name is inserted
     async def send_cog_help(self, cog):
         embed= discord.Embed(
             title=f"{cog.qualified_name} commands",
@@ -82,11 +72,7 @@ class MyHelp(commands.MinimalHelpCommand):
         await channel.send(embed=embed)
         
         
-        
-    
-
-    #TODO
-    #This is the full help command, create a screen that Displays the names of each cog that isnt hidden and how many commands there are
+    #full help command (called if nothing else is added to the command)
     async def send_bot_help(self, mapping):
         embed = discord.Embed(title="Command Group List")
         for cog, commands in mapping.items():
